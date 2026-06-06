@@ -3,7 +3,7 @@ import { SERVICES_DATA, INDUSTRIES_DATA } from '../data/siteData'
 const CDN = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/textures/planets'
 
 const STATIC_ASSETS = [
-  '/assets/clearviewglobal_outside.jpeg',
+  '/assets/clearviewglobal_outside.jpg',
   '/assets/clearviewlogo.png',
   '/assets/clearviewlogo.svg',
   '/assets/clearview-header-logo.png',

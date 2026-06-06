@@ -1,6 +1,6 @@
 import SpinningLogoCanvas from './SpinningLogoCanvas'
 
-const OFFICE_IMAGE = '/assets/clearviewglobal_outside.jpeg'
+const OFFICE_IMAGE = '/assets/clearviewglobal_outside.jpg'
 
 export default function CompanyMission() {
   return (
