@@ -10,10 +10,19 @@ const HOVER_SCALE = 2.8 * 0.8 * 0.7 // 1.568 — visual zoom only, layout slot s
 const SLOT_SIZE = IDLE_ICON
 const H_PAD_BASE = Math.round(10 * MENU_SCALE)
 const BAR_H_PAD = Math.max(0, Math.round(((H_PAD_BASE * 2 + SLOT_SIZE) * 0.8 - SLOT_SIZE) / 2))
+const SCROLL_OFFSET = 70
 const HERO_LOGO = '/assets/Logo.svg'
 const COMPANY_ICON = '/assets/Our Company.svg'
 const INDUSTRY_ICON = '/assets/Industry.svg'
 const CONTACT_ICON = '/assets/Contact Us.svg'
+
+const panelStyle = {
+  background: 'rgba(3,6,14,0.88)',
+  backdropFilter: 'blur(24px)',
+  WebkitBackdropFilter: 'blur(24px)',
+  border: '1px solid rgba(41,182,255,0.08)',
+  borderRadius: '18px',
+}
 
 const iconGlow = (active) =>
   active
@@ -39,6 +48,7 @@ function hoverLabelGap(iconSize, isHovered) {
   const hoverOverflow = iconSize * (HOVER_SCALE - 1)
   return Math.round((base + hoverOverflow + 12) * 0.7)
 }
+
 function SectionDivider() {
   return (
     <div
@@ -83,7 +93,7 @@ function NavDot({ label, onClick, isActive, isHovered, onEnter, onLeave, iconSiz
       title={label}
     >
       <span
-        className="absolute right-full font-medium tracking-wide whitespace-nowrap"
+        className="absolute right-full font-medium tracking-wide whitespace-nowrap pointer-events-none"
         style={{
           marginRight: `${hoverLabelGap(iconSize, isHovered)}px`,
           fontSize: isHovered ? `${LABEL_FONT_HOVER}px` : `${LABEL_FONT_IDLE}px`,
@@ -139,7 +149,7 @@ export default function SideDotNav() {
   const scrollToService = (i) => {
     const info = window.__showcaseInfo
     if (!info || !info.slideEls || !info.slideEls[i]) return
-    const y = info.slideEls[i].getBoundingClientRect().top + window.scrollY - 70
+    const y = info.slideEls[i].getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET
     window.scrollTo({ top: y, behavior: 'smooth' })
   }
 
@@ -147,7 +157,7 @@ export default function SideDotNav() {
   const scrollToSection = (id) => {
     const el = document.getElementById(id)
     if (!el) return
-    const y = el.getBoundingClientRect().top + window.scrollY - 70
+    const y = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET
     window.scrollTo({ top: y, behavior: 'smooth' })
   }
   const scrollToIndustries = () => scrollToSection('industries')
@@ -161,7 +171,7 @@ export default function SideDotNav() {
         pointerEvents: menuVisible ? 'auto' : 'none',
         opacity: menuVisible ? 1 : 0,
         transform: menuVisible ? 'translateY(-50%) translateX(0)' : 'translateY(-50%) translateX(12px)',
-        transition: 'opacity 0.35s ease, transform 0.35s ease',
+        transition: 'opacity 0.5s ease, transform 0.5s ease',
       }}
     >
       <div
@@ -169,12 +179,7 @@ export default function SideDotNav() {
         style={{
           gap: `${Math.round(8 * MENU_SCALE)}px`,
           padding: `${Math.round(12 * MENU_SCALE)}px ${BAR_H_PAD}px`,
-          borderRadius: '18px',
-          background: 'rgba(3, 7, 20, 0.42)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(41,182,255,0.18)',
-          boxShadow: '0 4px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)',
+          ...panelStyle,
         }}
       >
       <NavDot
