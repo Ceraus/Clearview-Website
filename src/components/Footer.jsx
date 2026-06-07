@@ -133,7 +133,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 items-stretch">
           <div className="flex flex-col justify-center">
             <p className="text-[10px] tracking-[0.4em] uppercase mb-4 font-light" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              Our Services
+              Services We Offer
             </p>
             <ul className="flex flex-col gap-2.5">
               {SERVICES_DATA.map((service, index) => (
