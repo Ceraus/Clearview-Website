@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react'
 
-const ThemeContext = createContext({ isDark: true, toggle: () => {} })
+const ThemeContext = createContext({ isDark: false, toggle: () => {} })
 
 const THEME_BLUR_MS = 400
 const THEME_BLUR_FADE_MS = 650
@@ -33,7 +33,7 @@ export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(() => {
     const stored = localStorage.getItem('cg-theme')
     if (stored) return stored === 'dark'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
+    return false
   })
   const [showThemeOverlay, setShowThemeOverlay] = useState(false)
   const [themeBlurActive, setThemeBlurActive] = useState(false)

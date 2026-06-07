@@ -3,7 +3,7 @@ export default function HeroSection() {
     <section
       id="hero"
       className="relative w-full z-10 flex items-center justify-center overflow-hidden"
-      style={{ height: '42.85vh', minHeight: '315px', background: 'transparent' }}
+      style={{ height: '51.42vh', minHeight: '378px', background: 'transparent', pointerEvents: 'none' }}
     >
       <img
         src="/assets/clearviewlogo.png"

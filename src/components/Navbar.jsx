@@ -286,6 +286,7 @@ export default function Navbar() {
               showTopFade={false}
               borderRadius="12px"
               forceDark={servicesMenuDark}
+              layout="column"
             />
           </NavDropdown>
 
@@ -415,6 +416,7 @@ export default function Navbar() {
                 showTopFade={false}
                 borderRadius="12px"
                 forceDark={servicesMenuDark}
+                layout="column"
               />
             </div>
           )}

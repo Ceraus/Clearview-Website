@@ -48,7 +48,7 @@ export default function SubPage({ type, slug }) {
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-5">{item.title}</h1>
+          <h1 className="gradient-title gradient-title--on-dark text-4xl md:text-5xl font-bold leading-tight mb-5">{item.title}</h1>
 
           {item.iconPath && (
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-2"

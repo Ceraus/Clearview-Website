@@ -40,7 +40,7 @@ export default function CompanyMission() {
               >
                 Who We Are
               </p>
-              <h2 className="text-2xl md:text-3xl font-bold leading-snug mb-6 md:mb-8 mt-2" style={{ color: 'var(--text-title)' }}>
+              <h2 className="gradient-title text-2xl md:text-3xl font-bold leading-snug mb-6 md:mb-8 mt-2">
                 Our Company, Mission & Perspective
               </h2>
             </div>

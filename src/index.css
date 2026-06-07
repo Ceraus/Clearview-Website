@@ -115,10 +115,29 @@
     color: var(--text-title);
   }
 
+  /* Shared "Empower" gradient effect — dark mode only. */
+  .gradient-title,
+  .industries-heading-accent {
+    background: linear-gradient(135deg, #29b6ff 0%, #b3ff71 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Light mode: revert titles to the original solid title color. */
+  [data-theme="light"] .gradient-title,
   [data-theme="light"] .industries-heading-accent {
     background: none;
-    -webkit-text-fill-color: currentColor;
-    color: inherit;
+    -webkit-text-fill-color: var(--text-title);
+    color: var(--text-title);
+  }
+
+  /* Titles sitting on an always-dark surface (e.g. sub-page hero) stay white
+     in light mode instead of taking the light title color. */
+  [data-theme="light"] .gradient-title--on-dark {
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
   }
 
   [data-theme="light"] .services-menu-light {

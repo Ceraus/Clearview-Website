@@ -27,16 +27,8 @@ export default function IndustriesGrid() {
           <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
             Who We Serve
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold" style={{ color: 'var(--text-title)' }}>
-            Industries We{' '}
-            <span className="industries-heading-accent" style={{
-              background: 'linear-gradient(135deg, #29b6ff 0%, #b3ff71 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Empower
-            </span>
+          <h2 className="gradient-title text-3xl md:text-4xl font-bold">
+            Industries We Empower
           </h2>
         </div>
 

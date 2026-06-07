@@ -193,10 +193,7 @@ export default function ServicesShowcase() {
         <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
           Services We Offer
         </p>
-        <h2
-          className="text-3xl md:text-4xl font-bold"
-          style={{ color: 'var(--text-title)' }}
-        >
+        <h2 className="gradient-title text-3xl md:text-4xl font-bold">
           Our Services
         </h2>
       </div>

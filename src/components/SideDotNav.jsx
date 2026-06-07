@@ -177,8 +177,10 @@ function NavDotButton({
             width: isHovered ? DOT_SIZE_ACTIVE + 1 : DOT_SIZE,
             height: isHovered ? DOT_SIZE_ACTIVE + 1 : DOT_SIZE,
             borderRadius: '50%',
-            background: isHovered ? '#29b6ff' : 'rgba(41,182,255,0.42)',
-            boxShadow: isHovered ? '0 0 10px rgba(41,182,255,0.45)' : 'none',
+            background: isLightMenu ? '#176fb4' : '#29b6ff',
+            boxShadow: isHovered
+              ? (isLightMenu ? '0 0 10px rgba(23, 111, 180, 0.45)' : '0 0 10px rgba(41,182,255,0.45)')
+              : 'none',
             transition: 'all 0.2s ease',
           }}
         />

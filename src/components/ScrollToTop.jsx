@@ -45,7 +45,7 @@ export default function ScrollToTop() {
         width: '44px',
         height: '44px',
         cursor: 'pointer',
-        color: '#29b6ff',
+        color: isLight ? '#176fb4' : '#29b6ff',
         ...baseStyle,
       }}
       onMouseEnter={(e) => {

@@ -20,7 +20,7 @@ export default function HeroServicesShell() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none" style={{ background: '#020509' }}>
-          <div className="absolute inset-0" style={{ zIndex: 0 }}>
+          <div className="absolute inset-0 pointer-events-auto" style={{ zIndex: 0 }}>
             <HeroEarthCanvas />
           </div>
           <div
