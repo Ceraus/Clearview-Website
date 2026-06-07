@@ -2,7 +2,23 @@ import { useEffect, useRef } from 'react'
 
 const DEFAULT_NODE_COUNT = 42
 const DEFAULT_LINK_DIST = 118
-const COLOR = '41, 182, 255'
+const DEFAULT_COLOR = '41, 182, 255'
+
+function parseColor(input) {
+  if (!input) return DEFAULT_COLOR
+  if (input.startsWith('#')) {
+    const hex = input.slice(1)
+    const normalized = hex.length === 3
+      ? hex.split('').map((c) => c + c).join('')
+      : hex
+    const value = parseInt(normalized, 16)
+    if (Number.isNaN(value)) return DEFAULT_COLOR
+    return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`
+  }
+  const parts = input.match(/\d+/g)
+  if (parts?.length >= 3) return `${parts[0]}, ${parts[1]}, ${parts[2]}`
+  return DEFAULT_COLOR
+}
 
 export default function PlexusOverlay({
   className = '',
@@ -10,8 +26,11 @@ export default function PlexusOverlay({
   linkDist = DEFAULT_LINK_DIST,
   opacity = 0.85,
   intensity = 1,
+  color,
+  scale = 1,
 }) {
   const canvasRef = useRef(null)
+  const rgb = parseColor(color)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -40,6 +59,9 @@ export default function PlexusOverlay({
       const rect = canvas.getBoundingClientRect()
       const w = rect.width
       const h = rect.height
+      const linkReach = linkDist * scale
+      const dotRadius = 1.35 * scale
+      const lineWidth = 0.85 * scale
 
       ctx.clearRect(0, 0, w, h)
 
@@ -57,10 +79,10 @@ export default function PlexusOverlay({
           const dx = nodes[i].x - nodes[j].x
           const dy = nodes[i].y - nodes[j].y
           const dist = Math.hypot(dx, dy)
-          if (dist < linkDist) {
-            const alpha = (1 - dist / linkDist) * 0.28 * intensity
-            ctx.strokeStyle = `rgba(${COLOR}, ${alpha})`
-            ctx.lineWidth = 1
+          if (dist < linkReach) {
+            const alpha = (1 - dist / linkReach) * 0.18 * intensity
+            ctx.strokeStyle = `rgba(${rgb}, ${alpha})`
+            ctx.lineWidth = lineWidth
             ctx.beginPath()
             ctx.moveTo(nodes[i].x, nodes[i].y)
             ctx.lineTo(nodes[j].x, nodes[j].y)
@@ -70,9 +92,9 @@ export default function PlexusOverlay({
       }
 
       nodes.forEach((n) => {
-        ctx.fillStyle = `rgba(${COLOR}, ${0.55 * intensity})`
+        ctx.fillStyle = `rgba(${rgb}, ${0.38 * intensity})`
         ctx.beginPath()
-        ctx.arc(n.x, n.y, 1.6 * intensity, 0, Math.PI * 2)
+        ctx.arc(n.x, n.y, dotRadius, 0, Math.PI * 2)
         ctx.fill()
       })
 
@@ -87,7 +109,7 @@ export default function PlexusOverlay({
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
     }
-  }, [nodeCount, linkDist, intensity])
+  }, [nodeCount, linkDist, intensity, rgb, scale])
 
   return (
     <canvas

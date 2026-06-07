@@ -18,7 +18,9 @@ const EARTH_TEXTURES = [
   `${CDN}/earth_night_4096.jpg`,
   `${CDN}/earth_normal_2048.jpg`,
   `${CDN}/earth_specular_2048.jpg`,
+  'https://www.solarsystemscope.com/textures/download/4k_earth_clouds.jpg',
   '/assets/earth_clouds_2k.jpg',
+  'https://www.solarsystemscope.com/textures/download/2k_earth_clouds.jpg',
   '/assets/earth_clouds.png',
   `${CDN}/earth_clouds_1024.png`,
 ]

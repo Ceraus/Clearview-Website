@@ -1,5 +1,56 @@
 @import "tailwindcss";
 
+:root {
+  /* backgrounds */
+  --bg:               #020509;
+  --bg-alt:           #050a14;
+  --bg-card:          rgba(3,7,20,0.75);
+  --bg-card-hover:    rgba(3,7,20,0.88);
+  --bg-card-hi:       rgba(3,7,20,0.95);
+  --bg-glass:         rgba(3,6,14,0.88);
+  --bg-glass-subtle:  rgba(3,7,20,0.55);
+  /* text */
+  --text-strong:  #ffffff;
+  --text-title:   #ffffff;
+  --text-body:    rgba(255,255,255,0.72);
+  --text-muted:   rgba(255,255,255,0.50);
+  --text-label:   rgba(255,255,255,0.55);
+  --text-subtle:  rgba(255,255,255,0.35);
+  --text-dim:     rgba(255,255,255,0.20);
+  /* borders */
+  --border:       rgba(41,182,255,0.08);
+  --border-md:    rgba(41,182,255,0.18);
+  --border-card:  rgba(41,182,255,0.20);
+  /* shadows */
+  --shadow:        rgba(0,0,0,0.45);
+  --shadow-heavy:  rgba(0,0,0,0.70);
+  /* misc */
+  --divider: rgba(255,255,255,0.06);
+}
+
+[data-theme="light"] {
+  --bg:               #f8fafc;
+  --bg-alt:           #eef2f7;
+  --bg-card:          rgba(255,255,255,0.95);
+  --bg-card-hover:    #ffffff;
+  --bg-card-hi:       #ffffff;
+  --bg-glass:         rgba(255,255,255,0.97);
+  --bg-glass-subtle:  rgba(241,245,249,1);
+  --text-strong:  #0f172a;
+  --text-title:   #176fb4;
+  --text-body:    #1e293b;
+  --text-muted:   #475569;
+  --text-label:   #64748b;
+  --text-subtle:  #64748b;
+  --text-dim:     #94a3b8;
+  --border:       rgba(41,182,255,0.20);
+  --border-md:    rgba(41,182,255,0.32);
+  --border-card:  rgba(15,23,42,0.12);
+  --shadow:        rgba(15,23,42,0.10);
+  --shadow-heavy:  rgba(15,23,42,0.20);
+  --divider: rgba(15,23,42,0.08);
+}
+
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
@@ -7,29 +58,40 @@
 
   html {
     scroll-behavior: smooth;
+    background-color: var(--bg);
+    transition: background-color 0.5s ease, color 0.5s ease;
   }
 
   body {
     margin: 0;
     padding: 0;
-    background-color: #020509;
-    color: #e2e8f0;
+    background-color: var(--bg);
+    color: var(--text-strong);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  main,
+  section,
+  nav,
+  footer,
+  header {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
   }
 
   ::-webkit-scrollbar {
     width: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: #020509;
+    background: var(--bg);
   }
   ::-webkit-scrollbar-thumb {
-    background: #29b6ff33;
+    background: rgba(41,182,255,0.30);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #29b6ff66;
+    background: rgba(41,182,255,0.55);
   }
 
   .hide-scrollbar {
@@ -39,4 +101,40 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Tailwind text-white should respect theme */
+  [data-theme="light"] .theme-text-white {
+    color: var(--text-strong);
+  }
+
+  .section-label {
+    color: var(--text-subtle);
+  }
+
+  [data-theme="light"] .section-label {
+    color: var(--text-title);
+  }
+
+  [data-theme="light"] .industries-heading-accent {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: inherit;
+  }
+
+  [data-theme="light"] .services-menu-light {
+    color: var(--text-title);
+  }
+
+  [data-theme="light"] .services-menu-dark {
+    --bg-glass-subtle: rgba(3, 7, 20, 0.825);
+    --text-subtle: rgba(255, 255, 255, 0.35);
+    --text-muted: rgba(255, 255, 255, 0.50);
+    color: rgba(255, 255, 255, 0.72);
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: ease-in-out;
 }

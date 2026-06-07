@@ -11,34 +11,35 @@ const NIGHT_URL = `${CDN}/earth_night_4096.jpg`
 const NORMAL_URL = `${CDN}/earth_normal_2048.jpg`
 const SPEC_URL = `${CDN}/earth_specular_2048.jpg`
 const CLOUD_SOURCES = [
+  'https://www.solarsystemscope.com/textures/download/4k_earth_clouds.jpg',
   '/assets/earth_clouds_2k.jpg',
+  'https://www.solarsystemscope.com/textures/download/2k_earth_clouds.jpg',
   '/assets/earth_clouds.png',
   `${CDN}/earth_clouds_1024.png`,
 ]
-const CLOUD_TEXEL = 'vec2(1.0 / 1024.0, 1.0 / 512.0)'
 
 const CLOUD_SAMPLE_GLSL = `
+uniform vec2 uCloudTexel;
+
 float sampleCloudRaw(vec2 uv) {
   vec3 c = texture2D(uClouds, uv).rgb;
   return max(c.r, max(c.g, c.b));
 }
 
 float cloudDensitySoft(vec2 uv) {
-  vec2 px = ${CLOUD_TEXEL};
-  float d = sampleCloudRaw(uv) * 2.0;
-  d += sampleCloudRaw(uv + vec2(px.x, 0.0)) * 0.65;
-  d += sampleCloudRaw(uv - vec2(px.x, 0.0)) * 0.65;
-  d += sampleCloudRaw(uv + vec2(0.0, px.y)) * 0.65;
-  d += sampleCloudRaw(uv - vec2(0.0, px.y)) * 0.65;
-  d += sampleCloudRaw(uv + px) * 0.4;
-  d += sampleCloudRaw(uv - px) * 0.4;
-  d /= 5.6;
-  return pow(clamp(d, 0.0, 1.0), 0.9);
+  vec2 px = uCloudTexel;
+  float d = sampleCloudRaw(uv) * 2.55;
+  d += sampleCloudRaw(uv + vec2(px.x, 0.0)) * 0.78;
+  d += sampleCloudRaw(uv - vec2(px.x, 0.0)) * 0.78;
+  d += sampleCloudRaw(uv + vec2(0.0, px.y)) * 0.78;
+  d += sampleCloudRaw(uv - vec2(0.0, px.y)) * 0.78;
+  d /= 4.89;
+  return pow(clamp(d, 0.0, 1.0), 0.76);
 }
 `
 
 const EARTH_RADIUS = 2.4
-const SEGMENTS = 256
+const SEGMENTS = 128
 
 const ATMOS_VERT = `
   varying vec3 vNormal;
@@ -225,7 +226,7 @@ function AtmosphereGlow({ radius, color, intensity, power }) {
 
   return (
     <mesh>
-      <sphereGeometry args={[radius, 128, 128]} />
+      <sphereGeometry args={[radius, 64, 64]} />
       <shaderMaterial
         vertexShader={ATMOS_VERT}
         fragmentShader={ATMOS_FRAG}
@@ -241,7 +242,7 @@ function AtmosphereGlow({ radius, color, intensity, power }) {
 
 function CloudLayer({ cloudsRef, cloudUniforms, earthUniforms }) {
   const { gl } = useThree()
-  const anisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 16)
+  const anisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 8)
   const [clouds, setClouds] = useState(null)
 
   useEffect(() => {
@@ -251,6 +252,11 @@ function CloudLayer({ cloudsRef, cloudUniforms, earthUniforms }) {
     const applyCloud = (texture) => {
       if (cancelled) return
       configureTexture(texture, { srgb: true, anisotropy, repeat: true })
+      const width = texture.image?.width || 2048
+      const height = texture.image?.height || 1024
+      const texel = new THREE.Vector2(1 / width, 1 / height)
+      cloudUniforms.uCloudTexel.value.copy(texel)
+      earthUniforms.uCloudTexel.value.copy(texel)
       setClouds(texture)
       cloudUniforms.uClouds.value = texture
       earthUniforms.uClouds.value = texture
@@ -271,12 +277,6 @@ function CloudLayer({ cloudsRef, cloudUniforms, earthUniforms }) {
     return () => { cancelled = true }
   }, [anisotropy, cloudUniforms, earthUniforms])
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    const rot = t * 0.036
-    if (cloudsRef.current) cloudsRef.current.rotation.y = rot + t * 0.008
-  })
-
   if (!clouds) return null
 
   return (
@@ -295,10 +295,10 @@ function CloudLayer({ cloudsRef, cloudUniforms, earthUniforms }) {
 }
 
 function TexturedEarth() {
-  const earthRef = useRef()
+  const globeRef = useRef()
   const cloudsRef = useRef()
   const { gl } = useThree()
-  const anisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 16)
+  const anisotropy = Math.min(gl.capabilities.getMaxAnisotropy(), 8)
 
   const [day, night, normal, spec] = useLoader(TextureLoader, [
     DAY_URL, NIGHT_URL, NORMAL_URL, SPEC_URL,
@@ -313,6 +313,7 @@ function TexturedEarth() {
 
   const sunDir = useMemo(() => new THREE.Vector3(1, 0.25, 0.8).normalize(), [])
   const emptyClouds = useMemo(() => createEmptyCloudTexture(), [])
+  const defaultCloudTexel = useMemo(() => new THREE.Vector2(1 / 4096, 1 / 2048), [])
 
   const earthUniforms = useMemo(
     () => ({
@@ -321,33 +322,34 @@ function TexturedEarth() {
       uNormal: { value: normal },
       uSpecular: { value: spec },
       uClouds: { value: emptyClouds },
+      uCloudTexel: { value: defaultCloudTexel.clone() },
       uSunDir: { value: sunDir },
       uCloudShadow: { value: 0.14 },
       uCloudPhase: { value: 0 },
     }),
-    [day, night, normal, spec, emptyClouds, sunDir],
+    [day, night, normal, spec, emptyClouds, defaultCloudTexel, sunDir],
   )
 
   const cloudUniforms = useMemo(
     () => ({
       uClouds: { value: emptyClouds },
+      uCloudTexel: { value: defaultCloudTexel.clone() },
       uSunDir: { value: sunDir },
-      uOpacity: { value: 0.68 },
+      uOpacity: { value: 0.78 },
     }),
-    [emptyClouds, sunDir],
+    [emptyClouds, defaultCloudTexel, sunDir],
   )
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
-    const rot = t * 0.036
-    const cloudDrift = t * 0.008
-    if (earthRef.current) earthRef.current.rotation.y = rot
-    earthUniforms.uCloudPhase.value = cloudDrift / (Math.PI * 2)
+    if (globeRef.current) globeRef.current.rotation.y = t * 0.036
+    if (cloudsRef.current) cloudsRef.current.rotation.y = t * 0.008
+    earthUniforms.uCloudPhase.value = (t * 0.008) / (Math.PI * 2)
   })
 
   return (
-    <group>
-      <mesh ref={earthRef}>
+    <group ref={globeRef}>
+      <mesh>
         <sphereGeometry args={[EARTH_RADIUS, SEGMENTS, SEGMENTS]} />
         <shaderMaterial
           vertexShader={EARTH_VERT}
@@ -369,14 +371,14 @@ function TexturedEarth() {
 }
 
 function FallbackEarth() {
-  const meshRef = useRef()
+  const globeRef = useRef()
   useFrame(({ clock }) => {
-    if (meshRef.current) meshRef.current.rotation.y = clock.getElapsedTime() * 0.036
+    if (globeRef.current) globeRef.current.rotation.y = clock.getElapsedTime() * 0.036
   })
   return (
-    <group>
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[EARTH_RADIUS, 128, 128]} />
+    <group ref={globeRef}>
+      <mesh>
+        <sphereGeometry args={[EARTH_RADIUS, 64, 64]} />
         <meshStandardMaterial
           color={new THREE.Color(0x0c2244)}
           emissive={new THREE.Color(0x041020)}
@@ -392,9 +394,15 @@ function FallbackEarth() {
 }
 
 function Scene() {
+  const { scene } = useThree()
+
+  useEffect(() => {
+    scene.background = new THREE.Color(0x020509)
+  }, [scene])
+
   return (
     <>
-      <Stars radius={160} depth={70} count={9000} factor={3.2} saturation={0.1} fade speed={0.25} />
+      <Stars radius={160} depth={70} count={5500} factor={3.2} saturation={0.1} fade speed={0.25} />
       <directionalLight position={[6, 2.5, 5]} intensity={2.4} color="#eef6ff" />
       <directionalLight position={[-5, -1.5, -4]} intensity={0.12} color="#1a2850" />
       <ambientLight intensity={0.04} color="#030b20" />
@@ -411,7 +419,7 @@ function Scene() {
 export default function HeroEarthCanvas() {
   return (
     <Canvas
-      camera={{ position: [0, 0, 5.4], fov: 42 }}
+      camera={{ position: [0, 0, 4.5], fov: 42 }}
       gl={{
         antialias: true,
         alpha: false,
@@ -419,8 +427,9 @@ export default function HeroEarthCanvas() {
         toneMapping: THREE.ACESFilmicToneMapping,
         toneMappingExposure: 1.08,
       }}
-      dpr={[1, 2]}
-      style={{ width: '100%', height: '100%' }}
+      dpr={[1, 1.5]}
+      performance={{ min: 0.85 }}
+      style={{ width: '100%', height: '100%', background: '#020509' }}
     >
       <Scene />
     </Canvas>

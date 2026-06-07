@@ -4,7 +4,9 @@ import AssetPreloader from './components/AssetPreloader'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import ThemeToggle from './components/ThemeToggle'
 import HomePage from './pages/HomePage'
+import { ThemeProvider } from './context/ThemeContext'
 
 const ManagedIT = lazy(() => import('./pages/services/ManagedIT'))
 const CyberSecurity = lazy(() => import('./pages/services/CyberSecurity'))
@@ -28,7 +30,7 @@ function PageLoader() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: '#040810' }}
+      style={{ background: 'var(--bg)' }}
     >
       <div className="flex flex-col items-center gap-4">
         <div
@@ -42,10 +44,12 @@ function PageLoader() {
 
 export default function App() {
   return (
-    <AssetPreloader>
-      <BrowserRouter>
-        <Navbar />
-        <Suspense fallback={<PageLoader />}>
+    <ThemeProvider>
+      <AssetPreloader>
+        <BrowserRouter>
+          <Navbar />
+          <ThemeToggle />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
 
@@ -66,11 +70,12 @@ export default function App() {
             <Route path="/industries/manufacturing" element={<Manufacturing />} />
             <Route path="/industries/entertainment" element={<Entertainment />} />
             <Route path="/industries/education" element={<Education />} />
-          </Routes>
-        </Suspense>
-        <ScrollToTop />
-        <Footer />
-      </BrowserRouter>
-    </AssetPreloader>
+            </Routes>
+          </Suspense>
+          <ScrollToTop />
+          <Footer />
+        </BrowserRouter>
+      </AssetPreloader>
+    </ThemeProvider>
   )
 }

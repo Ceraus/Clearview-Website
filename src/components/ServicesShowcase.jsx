@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { SERVICES_DATA } from '../data/siteData'
+import { scrollToSection } from '../utils/navScroll'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -14,7 +15,7 @@ function scrollToSlide(i) {
   window.scrollTo({ top: y, behavior: 'smooth' })
 }
 
-function ServiceItem({ service, index, registerRef }) {
+function ServiceItem({ service, index, registerRef, stackOrder }) {
   const rootRef  = useRef()
   const imageRef = useRef()
   const prev = SERVICES_DATA[index - 1] || null
@@ -40,7 +41,7 @@ function ServiceItem({ service, index, registerRef }) {
       data-index={index}
       id={`service-slide-${index}`}
       className="w-full flex flex-col"
-      style={{ margin: 0, padding: 0 }}
+      style={{ margin: 0, padding: 0, paddingBottom: '64px', overflow: 'visible', position: 'relative' }}
     >
       <div
         style={{
@@ -49,10 +50,10 @@ function ServiceItem({ service, index, registerRef }) {
           position: 'relative',
           overflow: 'hidden',
           boxSizing: 'border-box',
-          background: '#020509',
+          background: 'var(--bg)',
         }}
       >
-        <div ref={imageRef} className="absolute inset-0 flex items-center justify-center" style={{ background: '#020509' }}>
+        <div ref={imageRef} className="absolute inset-0 flex items-center justify-center" style={{ background: 'var(--bg)' }}>
           <img
             src={service.imagePath}
             alt={service.title}
@@ -63,30 +64,35 @@ function ServiceItem({ service, index, registerRef }) {
             }}
           />
         </div>
+      </div>
 
+      <div
+        className="relative flex justify-center"
+        style={{
+          marginTop: '-84px',
+          paddingInline: '4%',
+          zIndex: stackOrder,
+        }}
+      >
         <div
-          className="absolute inset-x-0 bottom-0 flex justify-center"
-          style={{ padding: '0 0 18px' }}
+          style={{
+            width: 'min(92%, 1100px)',
+            borderRadius: '16px',
+            padding: '16px 26px',
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.10) 0%, rgba(41,182,255,0.05) 50%, rgba(255,255,255,0.04) 100%)',
+            backdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
+            WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            borderTop: '1px solid rgba(255,255,255,0.35)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.22), 0 0 0 0.5px rgba(41,182,255,0.12)',
+          }}
         >
-          <div
-            style={{
-              width: 'min(92%, 1100px)',
-              borderRadius: '16px',
-              padding: '16px 26px',
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.10) 0%, rgba(41,182,255,0.05) 50%, rgba(255,255,255,0.04) 100%)',
-              backdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
-              WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              borderTop: '1px solid rgba(255,255,255,0.35)',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.22), 0 0 0 0.5px rgba(41,182,255,0.12)',
-            }}
-          >
             <div className="flex flex-col gap-4 text-center">
               <div>
-                <h2 className="text-lg font-bold text-white leading-tight mb-1">
+                <h2 className="text-lg font-bold leading-tight mb-1" style={{ color: 'var(--text-title)' }}>
                   {service.title}
                 </h2>
-                <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.62)' }}>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
                   {service.description}
                 </p>
               </div>
@@ -94,16 +100,14 @@ function ServiceItem({ service, index, registerRef }) {
               <div className="flex items-center justify-center gap-5 flex-wrap">
                 <button
                   className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 whitespace-nowrap"
-                  style={{ color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#29b6ff' }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}
                   onClick={() => {
                     if (prev) {
                       scrollToSlide(index - 1)
                     } else {
-                      const nav = document.getElementById('services-nav')
-                      if (nav) nav.scrollIntoView({ behavior: 'smooth' })
-                      else window.scrollTo({ top: 0, behavior: 'smooth' })
+                      scrollToSection('services-showcase')
                     }
                   }}
                 >
@@ -131,7 +135,6 @@ function ServiceItem({ service, index, registerRef }) {
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }
@@ -181,13 +184,35 @@ export default function ServicesShowcase() {
       id="services-showcase"
       ref={sectionRef}
       className="relative w-full flex flex-col items-center"
-      style={{ background: '#020509', gap: 0, margin: 0, paddingTop: '3.23vh', paddingBottom: '4.59vh' }}
+      style={{ background: 'var(--bg)', gap: 0, margin: 0, paddingTop: '2.26vh', paddingBottom: '3.21vh', overflow: 'visible' }}
     >
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div
+        className="w-full max-w-7xl mx-auto px-4 relative z-10 text-center"
+        style={{ marginBottom: '8px' }}
+      >
+        <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
+          Services We Offer
+        </p>
+        <h2
+          className="text-3xl md:text-4xl font-bold"
+          style={{ color: 'var(--text-title)' }}
+        >
+          Our Services
+        </h2>
+      </div>
+
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, overflow: 'visible' }}>
         {SERVICES_DATA.map((service, i) => (
-          <ServiceItem key={service.linkRoute} service={service} index={i} registerRef={registerRef} />
+          <ServiceItem
+            key={service.linkRoute}
+            service={service}
+            index={i}
+            registerRef={registerRef}
+            stackOrder={SERVICES_DATA.length - i}
+          />
         ))}
       </div>
     </section>
   )
 }
+

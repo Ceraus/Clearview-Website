@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { INDUSTRIES_DATA, SERVICES_DATA } from '../data/siteData'
 import PlexusOverlay from './PlexusOverlay'
+import { useTheme } from '../context/ThemeContext'
 
 const ADDRESS = '150 W 22nd St, New York, NY 10011'
 const MAP_EMBED = `https://maps.google.com/maps?q=${encodeURIComponent(ADDRESS)}&z=15&output=embed`
@@ -95,6 +96,7 @@ const contactIconStyle = {
 export default function Footer() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isDark } = useTheme()
 
   const goToService = (index) => {
     const id = `service-slide-${index}`
@@ -125,14 +127,14 @@ export default function Footer() {
     <footer
       id="site-footer"
       className="relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #050a14 0%, #020509 100%)', borderTop: '1px solid rgba(41,182,255,0.08)' }}
+      style={{ background: 'linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%)', borderTop: '1px solid rgba(41,182,255,0.08)' }}
     >
-      <PlexusOverlay opacity={0.7} nodeCount={81} linkDist={115} />
+      <PlexusOverlay opacity={0.7} nodeCount={81} linkDist={115} scale={1.5} color={isDark ? undefined : '#176fb4'} />
 
       <div className="relative max-w-7xl mx-auto px-8 py-10" style={{ zIndex: 1 }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 items-stretch">
           <div className="flex flex-col justify-center">
-            <p className="text-[10px] tracking-[0.4em] uppercase mb-4 font-light" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-4 font-light">
               Services We Offer
             </p>
             <ul className="flex flex-col gap-2.5">
@@ -142,7 +144,7 @@ export default function Footer() {
                     type="button"
                     onClick={() => goToService(index)}
                     className="text-left text-xs leading-snug transition-colors duration-200 hover:text-[#29b6ff]"
-                    style={{ color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   >
                     {service.title}
                   </button>
@@ -152,7 +154,7 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col justify-center">
-            <p className="text-[10px] tracking-[0.4em] uppercase mb-4 font-light" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-4 font-light">
               Industries We Serve
             </p>
             <ul className="flex flex-col gap-2.5">
@@ -162,7 +164,7 @@ export default function Footer() {
                     type="button"
                     onClick={() => goToIndustry(index)}
                     className="text-left text-xs leading-snug transition-colors duration-200 hover:text-[#29b6ff]"
-                    style={{ color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   >
                     {industry.title}
                   </button>
@@ -190,10 +192,10 @@ export default function Footer() {
 
           <div className="flex flex-col justify-center gap-5 sm:col-span-2 lg:col-span-1">
             <div style={{ marginBottom: '8px' }}>
-              <p className="text-[10px] tracking-[0.4em] uppercase mb-2 font-light" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
                 Where to Find Us
               </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-white">
+              <h2 className="text-3xl md:text-4xl font-bold" style={{ color: 'var(--text-title)' }}>
                 Contact Us
               </h2>
             </div>
@@ -203,7 +205,7 @@ export default function Footer() {
                 <LocationIcon />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
                   Visit Us
                 </p>
                 <p className="text-sm font-semibold" style={{ color: '#29b6ff' }}>
@@ -220,7 +222,7 @@ export default function Footer() {
                 <PhoneIcon />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
                   We Can Help
                 </p>
                 <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
@@ -237,7 +239,7 @@ export default function Footer() {
                 <EmailIcon />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
                   Email Us
                 </p>
                 <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
@@ -273,7 +275,7 @@ export default function Footer() {
 
         <div
           className="text-center text-[11px] mt-10 pt-6"
-          style={{ color: 'rgba(255,255,255,0.2)', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ color: 'var(--text-dim)', borderTop: '1px solid var(--divider)' }}
         >
           © {new Date().getFullYear()} Clearview Global. All rights reserved.
         </div>
@@ -281,3 +283,4 @@ export default function Footer() {
     </footer>
   )
 }
+

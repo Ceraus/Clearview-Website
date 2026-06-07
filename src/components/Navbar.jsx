@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { SERVICES_DATA, INDUSTRIES_DATA } from '../data/siteData'
+import { INDUSTRIES_DATA } from '../data/siteData'
 import { scrollToSection, scrollToService, scrollToIndustry } from '../utils/navScroll'
+import { ServicesIconMenu } from './IconNavPanel'
+import { useTheme } from '../context/ThemeContext'
 
 function PhoneIcon() {
   return (
@@ -50,12 +52,12 @@ const contactIconStyle = {
 }
 
 const dropdownPanelStyle = {
-  background: 'rgba(3,6,14,0.96)',
+  background: 'var(--bg-glass)',
   backdropFilter: 'blur(24px)',
   WebkitBackdropFilter: 'blur(24px)',
-  border: '1px solid rgba(41,182,255,0.08)',
+  border: '1px solid var(--border)',
   borderRadius: '12px',
-  boxShadow: '0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+  boxShadow: '0 8px 48px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04)',
 }
 
 function DropdownItem({ label, onClick }) {
@@ -64,7 +66,7 @@ function DropdownItem({ label, onClick }) {
       type="button"
       onClick={onClick}
       className="block w-full text-left px-4 py-2.5 text-xs leading-snug transition-colors duration-200 hover:text-[#29b6ff]"
-      style={{ color: 'rgba(255,255,255,0.65)', background: 'none', border: 'none', cursor: 'pointer' }}
+      style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
       onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(41,182,255,0.08)' }}
       onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
     >
@@ -73,7 +75,7 @@ function DropdownItem({ label, onClick }) {
   )
 }
 
-function NavDropdown({ label, open, onToggle, onOpen, onClose, children, minWidth = 320 }) {
+function NavDropdown({ label, open, onToggle, onOpen, onClose, children, minWidth = 320, unstyled = false, linkColor = 'var(--text-muted)' }) {
   return (
     <div
       className="relative"
@@ -85,7 +87,7 @@ function NavDropdown({ label, open, onToggle, onOpen, onClose, children, minWidt
         onClick={onToggle}
         className="flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 hover:text-[#29b6ff]"
         style={{
-          color: open ? '#29b6ff' : 'rgba(255,255,255,0.5)',
+          color: open ? '#29b6ff' : linkColor,
           background: 'none',
           border: 'none',
           cursor: 'pointer',
@@ -102,15 +104,18 @@ function NavDropdown({ label, open, onToggle, onOpen, onClose, children, minWidt
         className="absolute left-0 pt-3 transition-all duration-300"
         style={{
           top: '100%',
-          minWidth: `${minWidth}px`,
+          minWidth: unstyled ? undefined : `${minWidth}px`,
           opacity: open ? 1 : 0,
           transform: open ? 'translateY(0)' : 'translateY(-8px)',
           pointerEvents: open ? 'auto' : 'none',
+          zIndex: 60,
         }}
       >
-        <div className="overflow-hidden py-1" style={dropdownPanelStyle}>
-          {children}
-        </div>
+        {unstyled ? children : (
+          <div className="overflow-hidden py-1" style={dropdownPanelStyle}>
+            {children}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -126,6 +131,9 @@ export default function Navbar() {
   const navRef = useRef(null)
   const location = useLocation()
   const navigate = useNavigate()
+  const { isDark } = useTheme()
+  const navLinkColor = scrolled ? 'var(--text-muted)' : '#ffffff'
+  const servicesMenuDark = !isDark && !scrolled && location.pathname === '/'
 
   const closeMenus = () => {
     setMenuOpen(false)
@@ -214,16 +222,25 @@ export default function Navbar() {
   }, [])
 
   return (
-    <nav
-      ref={navRef}
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
-      style={{
-        background: scrolled ? 'rgba(3,6,14,0.88)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(24px)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(41,182,255,0.08)' : '1px solid transparent',
-      }}
-    >
+    <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50">
+      <div
+        className="transition-all duration-500"
+        style={
+          isDark
+            ? {
+                background: scrolled ? 'var(--bg-glass)' : 'transparent',
+                backdropFilter: scrolled ? 'blur(24px)' : 'none',
+                WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
+                borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+              }
+            : {
+                background: scrolled ? 'var(--bg-glass)' : 'transparent',
+                backdropFilter: scrolled ? 'blur(24px)' : 'none',
+                WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
+                borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+              }
+        }
+      >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between relative">
 
         <a
@@ -260,28 +277,23 @@ export default function Navbar() {
             onToggle={() => { setServicesOpen((v) => !v); setIndustriesOpen(false) }}
             onOpen={() => { setServicesOpen(true); setIndustriesOpen(false) }}
             onClose={() => setServicesOpen(false)}
-            minWidth={360}
+            unstyled
+            linkColor={navLinkColor}
           >
-            <p
-              className="px-4 pt-3 pb-2 text-[10px] font-medium tracking-[0.25em] uppercase"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
-            >
-              Services We Offer
-            </p>
-            {SERVICES_DATA.map((service, index) => (
-              <DropdownItem
-                key={service.linkRoute}
-                label={service.title}
-                onClick={() => goToService(index)}
-              />
-            ))}
+            <ServicesIconMenu
+              onSelect={goToService}
+              scale={1.014}
+              showTopFade={false}
+              borderRadius="12px"
+              forceDark={servicesMenuDark}
+            />
           </NavDropdown>
 
           <button
             type="button"
             onClick={() => goToSection('company-mission')}
             className="text-xs font-medium transition-colors duration-200 hover:text-[#29b6ff]"
-            style={{ color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            style={{ color: navLinkColor, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
             Our Company
           </button>
@@ -293,10 +305,11 @@ export default function Navbar() {
             onOpen={() => { setIndustriesOpen(true); setServicesOpen(false) }}
             onClose={() => setIndustriesOpen(false)}
             minWidth={380}
+            linkColor={navLinkColor}
           >
             <p
               className="px-4 pt-3 pb-2 text-[10px] font-medium tracking-[0.25em] uppercase"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
+              style={{ color: 'var(--text-subtle)' }}
             >
               Industries We Serve
             </p>
@@ -333,7 +346,7 @@ export default function Navbar() {
                 <PhoneIcon />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'rgba(255,255,255,0.55)' }}>We Can Help</p>
+                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>We Can Help</p>
                 <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>212-920-1234</p>
               </div>
             </a>
@@ -342,7 +355,7 @@ export default function Navbar() {
                 <EmailIcon />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'rgba(255,255,255,0.55)' }}>Email Us</p>
+                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>Email Us</p>
                 <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>info@clearviewglobal.com</p>
               </div>
             </a>
@@ -359,22 +372,23 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+      </div>
 
       {menuOpen && (
-        <div className="md:hidden px-6 pb-6" style={{ background: 'rgba(3,6,14,0.96)', borderTop: '1px solid rgba(41,182,255,0.08)' }}>
+        <div className="md:hidden px-6 pb-6" style={{ background: 'var(--bg-glass)', borderTop: '1px solid var(--border)' }}>
           {scrolled && (
             <>
               <a href="tel:2129201234" className="flex items-center gap-3 py-4 mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}><PhoneIcon /></div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.55)' }}>We Can Help</p>
+                  <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text-label)' }}>We Can Help</p>
                   <p className="text-sm font-semibold" style={{ color: '#29b6ff' }}>212-920-1234</p>
                 </div>
               </a>
               <a href="mailto:info@clearviewglobal.com" className="flex items-center gap-3 py-4 mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}><EmailIcon /></div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.55)' }}>Email Us</p>
+                  <p className="text-[10px] uppercase tracking-wide" style={{ color: 'var(--text-label)' }}>Email Us</p>
                   <p className="text-sm font-semibold break-all" style={{ color: '#29b6ff' }}>info@clearviewglobal.com</p>
                 </div>
               </a>
@@ -388,34 +402,37 @@ export default function Navbar() {
             type="button"
             onClick={() => setMobileServicesOpen((v) => !v)}
             className="flex items-center justify-between py-3 text-xs transition-colors hover:text-[#29b6ff] w-full text-left"
-            style={{ color: mobileServicesOpen ? '#29b6ff' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer' }}
+            style={{ color: mobileServicesOpen ? '#29b6ff' : (isDark ? '#ffffff' : 'var(--text-muted)'), background: 'none', border: 'none', cursor: 'pointer' }}
           >
             Our Services
             <ChevronIcon open={mobileServicesOpen} />
           </button>
           {mobileServicesOpen && (
-            <div className="mb-2 pl-3" style={{ borderLeft: '1px solid rgba(41,182,255,0.15)' }}>
-              <p className="py-2 text-[10px] font-medium tracking-[0.25em] uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>Services We Offer</p>
-              {SERVICES_DATA.map((service, index) => (
-                <DropdownItem key={service.linkRoute} label={service.title} onClick={() => goToService(index)} />
-              ))}
+            <div className="mb-4 flex justify-center">
+              <ServicesIconMenu
+                onSelect={goToService}
+                scale={0.806}
+                showTopFade={false}
+                borderRadius="12px"
+                forceDark={servicesMenuDark}
+              />
             </div>
           )}
 
-          <button type="button" onClick={() => goToSection('company-mission')} className="block py-3 text-xs transition-colors hover:text-[#29b6ff] w-full text-left" style={{ color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer' }}>Our Company</button>
+          <button type="button" onClick={() => goToSection('company-mission')} className="block py-3 text-xs transition-colors hover:text-[#29b6ff] w-full text-left" style={{ color: isDark ? '#ffffff' : 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>Our Company</button>
 
           <button
             type="button"
             onClick={() => setMobileIndustriesOpen((v) => !v)}
             className="flex items-center justify-between py-3 text-xs transition-colors hover:text-[#29b6ff] w-full text-left"
-            style={{ color: mobileIndustriesOpen ? '#29b6ff' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer' }}
+            style={{ color: mobileIndustriesOpen ? '#29b6ff' : (isDark ? '#ffffff' : 'var(--text-muted)'), background: 'none', border: 'none', cursor: 'pointer' }}
           >
             Industries
             <ChevronIcon open={mobileIndustriesOpen} />
           </button>
           {mobileIndustriesOpen && (
             <div className="mb-2 pl-3" style={{ borderLeft: '1px solid rgba(41,182,255,0.15)' }}>
-              <p className="py-2 text-[10px] font-medium tracking-[0.25em] uppercase" style={{ color: 'rgba(255,255,255,0.35)' }}>Industries We Serve</p>
+              <p className="py-2 text-[10px] font-medium tracking-[0.25em] uppercase" style={{ color: 'var(--text-subtle)' }}>Industries We Serve</p>
               {INDUSTRIES_DATA.map((industry, index) => (
                 <DropdownItem key={industry.linkRoute} label={industry.title} onClick={() => goToIndustry(index)} />
               ))}

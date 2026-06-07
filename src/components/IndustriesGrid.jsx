@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { INDUSTRIES_DATA } from '../data/siteData'
+import { useTheme } from '../context/ThemeContext'
 
 export default function IndustriesGrid() {
   const location = useLocation()
@@ -18,17 +19,17 @@ export default function IndustriesGrid() {
   return (
     <section
       id="industries"
-      className="relative overflow-hidden px-4"
-      style={{ background: '#020509', paddingTop: '54px', paddingBottom: '10vh' }}
+      className="relative px-4"
+      style={{ background: 'var(--bg)', paddingTop: '54px', paddingBottom: '10vh' }}
     >
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center" style={{ marginBottom: '54px' }}>
-          <p className="text-[10px] tracking-[0.4em] uppercase mb-2 font-light" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
             Who We Serve
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
+          <h2 className="text-3xl md:text-4xl font-bold" style={{ color: 'var(--text-title)' }}>
             Industries We{' '}
-            <span style={{
+            <span className="industries-heading-accent" style={{
               background: 'linear-gradient(135deg, #29b6ff 0%, #b3ff71 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -52,6 +53,8 @@ export default function IndustriesGrid() {
 function BentoTile({ industry, index }) {
   const [hovered, setHovered] = useState(false)
   const [highlighted, setHighlighted] = useState(false)
+  const { isDark } = useTheme()
+  const hoverBoost = isDark ? 1 : 1.3
 
   useEffect(() => {
     const onHighlight = (e) => {
@@ -70,31 +73,31 @@ function BentoTile({ industry, index }) {
 
   const tileStyle = highlighted
     ? {
-        background: 'rgba(3,7,20,0.95)',
+        background: 'var(--bg-card-hi)',
         border: '2px solid rgba(41,182,255,0.85)',
-        boxShadow: '0 14px 56px rgba(0,0,0,0.8), 0 0 42px rgba(41,182,255,0.45), 0 0 72px rgba(41,182,255,0.2)',
+        boxShadow: '0 14px 56px var(--shadow-heavy), 0 0 42px rgba(41,182,255,0.45), 0 0 72px rgba(41,182,255,0.2)',
         transform: 'translateY(-5px) scale(1.02)',
       }
     : hovered
       ? {
-          background: 'rgba(3,7,20,0.88)',
-          border: '1px solid rgba(41,182,255,0.45)',
-          boxShadow: '0 8px 48px rgba(0,0,0,0.7), 0 0 28px rgba(41,182,255,0.1)',
-          transform: 'translateY(-2px)',
+          background: 'var(--bg-card-hover)',
+          border: `1px solid rgba(41,182,255,${0.45 * hoverBoost})`,
+          boxShadow: `0 8px 48px var(--shadow-heavy), 0 0 ${Math.round(28 * hoverBoost)}px rgba(41,182,255,${0.1 * hoverBoost})`,
+          transform: `translateY(${-2 * hoverBoost}px)`,
         }
       : {
-          background: 'rgba(3,7,20,0.75)',
-          border: '1px solid rgba(41,182,255,0.2)',
-          boxShadow: '0 8px 48px rgba(0,0,0,0.55)',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-card)',
+          boxShadow: '0 8px 48px var(--shadow)',
           transform: 'translateY(0)',
         }
 
   const glowOpacity = highlighted ? 1 : hovered ? 1 : 0
   const glowBackground = highlighted
     ? 'radial-gradient(ellipse at 50% 30%, rgba(41,182,255,0.22) 0%, rgba(41,182,255,0.08) 45%, transparent 72%)'
-    : 'radial-gradient(ellipse at 50% 30%, rgba(41,182,255,0.08) 0%, transparent 70%)'
+    : `radial-gradient(ellipse at 50% 30%, rgba(41,182,255,${0.08 * hoverBoost}) 0%, transparent 70%)`
   const baseIconScale = 1.2
-  const iconScale = baseIconScale * (highlighted ? 1.1 : hovered ? 1.05 : 1)
+  const iconScale = baseIconScale * (highlighted ? 1.1 : hovered ? 1 + 0.05 * hoverBoost : 1)
 
   return (
     <div
@@ -111,23 +114,18 @@ function BentoTile({ industry, index }) {
       {highlighted && (
         <div
           className="absolute inset-0 pointer-events-none rounded-2xl z-[5]"
-          style={{
-            boxShadow: 'inset 0 0 32px rgba(41,182,255,0.18)',
-          }}
+          style={{ boxShadow: 'inset 0 0 32px rgba(41,182,255,0.18)' }}
         />
       )}
 
       <div
         className="absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-2xl z-10"
-        style={{
-          background: glowBackground,
-          opacity: glowOpacity,
-        }}
+        style={{ background: glowBackground, opacity: glowOpacity }}
       />
 
       <span
         className="absolute top-2 right-3 text-sm font-bold select-none z-20 transition-colors duration-300"
-        style={{ color: '#b3ff71', fontVariantNumeric: 'tabular-nums' }}
+        style={{ color: '#6b974d', fontVariantNumeric: 'tabular-nums' }}
       >
         {String(index + 1).padStart(2, '0')}
       </span>
@@ -155,13 +153,13 @@ function BentoTile({ industry, index }) {
         <h3
           className="font-semibold text-sm leading-snug transition-colors duration-300"
           style={{
-            color: highlighted ? '#b3ff71' : hovered ? '#29b6ff' : 'white',
+            color: highlighted ? '#b3ff71' : hovered ? '#29b6ff' : 'var(--text-title)',
             textShadow: highlighted ? '0 0 18px rgba(41,182,255,0.45)' : 'none',
           }}
         >
           {industry.title}
         </h3>
-        <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
           {industry.description}
         </p>
       </div>
