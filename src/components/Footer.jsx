@@ -127,7 +127,7 @@ export default function Footer() {
     <footer
       id="site-footer"
       className="relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%)', borderTop: '1px solid rgba(41,182,255,0.08)' }}
+      style={{ background: 'linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%)' }}
     >
       <PlexusOverlay opacity={0.7} nodeCount={81} linkDist={115} scale={1.5} color={isDark ? undefined : '#176fb4'} />
 

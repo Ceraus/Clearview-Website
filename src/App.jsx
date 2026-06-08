@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AssetPreloader from './components/AssetPreloader'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import PlexusDivider from './components/PlexusDivider'
 import ScrollToTop from './components/ScrollToTop'
 import ThemeToggle from './components/ThemeToggle'
 import HomePage from './pages/HomePage'
@@ -73,6 +74,7 @@ export default function App() {
             </Routes>
           </Suspense>
           <ScrollToTop />
+          <PlexusDivider darkColor="#050a14" lightColor="#eef2f7" />
           <Footer />
         </BrowserRouter>
       </AssetPreloader>
