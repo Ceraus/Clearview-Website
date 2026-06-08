@@ -111,6 +111,25 @@
     color: var(--text-subtle);
   }
 
+  .section-heading__label {
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    font-weight: 300;
+  }
+
+  .section-heading__title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+  }
+
+  @media (min-width: 768px) {
+    .section-heading__title {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+  }
+
   [data-theme="light"] .section-label {
     color: var(--text-title);
   }

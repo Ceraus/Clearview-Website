@@ -23,11 +23,14 @@ export default function IndustriesGrid() {
       style={{ background: 'var(--bg)', paddingTop: '54px', paddingBottom: '10vh' }}
     >
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center" style={{ marginBottom: 'min(5vh, 45px)' }}>
-          <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
+        <div
+          className="w-full px-4 relative z-10 text-center"
+          style={{ marginBottom: '8px' }}
+        >
+          <p className="section-label section-heading__label uppercase mb-2">
             Who We Serve
           </p>
-          <h2 className="gradient-title text-3xl md:text-4xl font-bold">
+          <h2 className="gradient-title section-heading__title">
             Industries We Empower
           </h2>
         </div>

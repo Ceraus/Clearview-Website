@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { SERVICES_DATA } from '../data/siteData'
 import { scrollToSection } from '../utils/navScroll'
-import { useTheme } from '../context/ThemeContext'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -17,12 +16,19 @@ function scrollToSlide(i) {
 }
 
 const CLICKED_LINK = '#475569'
+const GLASS_DIALOGUE_STYLE = {
+  background: 'linear-gradient(145deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.88) 50%, rgba(248,250,252,0.9) 100%)',
+  backdropFilter: 'blur(48px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(48px) saturate(180%)',
+  border: '1px solid rgba(255,255,255,0.98)',
+  borderTop: '1px solid #ffffff',
+  boxShadow: '0 8px 40px rgba(15,23,42,0.14), inset 0 1px 0 rgba(255,255,255,1), 0 0 0 1px rgba(15,23,42,0.05)',
+}
 
 function ServiceItem({ service, index, registerRef, stackOrder }) {
   const rootRef  = useRef()
   const imageRef = useRef()
   const [clickedLink, setClickedLink] = useState(null)
-  const { isDark } = useTheme()
   const prev = SERVICES_DATA[index - 1] || null
   const next = SERVICES_DATA[index + 1] || null
 
@@ -33,7 +39,7 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
 
   const resetLinkColor = (el, id) => {
     if (!el) return
-    el.style.color = clickedLink === id ? CLICKED_LINK : 'var(--text-muted)'
+    el.style.color = clickedLink === id ? CLICKED_LINK : '#64748b'
   }
 
   useEffect(() => {
@@ -84,7 +90,7 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
       <div
         className="relative flex justify-center"
         style={{
-          marginTop: '-149px',
+          marginTop: '-309px',
           paddingInline: '4%',
           zIndex: stackOrder,
         }}
@@ -94,20 +100,15 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
             width: 'min(92%, 1100px)',
             borderRadius: '16px',
             padding: '16px 26px',
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.10) 0%, rgba(41,182,255,0.05) 50%, rgba(255,255,255,0.04) 100%)',
-            backdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
-            WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
-            border: '1px solid rgba(255,255,255,0.18)',
-            borderTop: '1px solid rgba(255,255,255,0.35)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.22), 0 0 0 0.5px rgba(41,182,255,0.12)',
+            ...GLASS_DIALOGUE_STYLE,
           }}
         >
             <div className="flex flex-col gap-4 text-center">
               <div>
-                <h2 className="text-lg font-bold leading-tight mb-1" style={{ color: 'var(--text-title)' }}>
+                <h2 className="text-lg font-bold leading-tight mb-1" style={{ color: '#176fb4' }}>
                   {service.title}
                 </h2>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-body)' }}>
+                <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
                   {service.description}
                 </p>
               </div>
@@ -116,7 +117,7 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
                 <button
                   className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 whitespace-nowrap"
                   style={{
-                    color: clickedLink === 'back' ? CLICKED_LINK : 'var(--text-muted)',
+                    color: clickedLink === 'back' ? CLICKED_LINK : '#64748b',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
@@ -149,7 +150,7 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
                       cursor: 'pointer',
                       padding: 0,
                     }}
-                    onMouseEnter={(e) => setLinkColor(e.currentTarget, 'next', isDark ? '#b3ff71' : '#29b6ff')}
+                    onMouseEnter={(e) => setLinkColor(e.currentTarget, 'next', '#29b6ff')}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.color = clickedLink === 'next' ? CLICKED_LINK : '#29b6ff'
                     }}
@@ -223,10 +224,10 @@ export default function ServicesShowcase() {
         className="w-full max-w-7xl mx-auto px-4 relative z-10 text-center"
         style={{ marginBottom: '8px' }}
       >
-        <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
+        <p className="section-label section-heading__label uppercase mb-2">
           Solutions We Offer
         </p>
-        <h2 className="gradient-title text-3xl md:text-4xl font-bold">
+        <h2 className="gradient-title section-heading__title">
           Our Services
         </h2>
       </div>
