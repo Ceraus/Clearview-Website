@@ -1,11 +1,148 @@
 import { useRef, useMemo, useEffect, useState, Component } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Stars, OrbitControls } from '@react-three/drei'
+import { Stars, OrbitControls, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { getSunDirection, latLonToVector3 } from '../utils/solar'
-import { fetchUserLocation } from '../utils/geolocation'
+import { GLOBAL_PARTNERS } from '../data/globalPartners'
 
 const EARTH_RADIUS = 2.4
+const PARTNER_DOT_COLOR = '#176fb4'
+const PARTNER_DOT_LIGHT = '#29b6ff'
+const PARTNER_DOT_DARK = '#0d4f7a'
+const PARTNER_LINE_COLOR = '#6b974d'
+const PARTNER_LINE_RADIUS = EARTH_RADIUS + 0.01
+const PARTNER_MARKER_SCALE = 0.095
+const DEFAULT_GLOBE_YAW = -0.55
+
+let partnerMarkerTexture
+
+function getPartnerMarkerTexture() {
+  if (partnerMarkerTexture) return partnerMarkerTexture
+
+  const size = 128
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  const cx = size / 2
+  const cy = size / 2
+
+  const glow = ctx.createRadialGradient(cx, cy, size * 0.08, cx, cy, size * 0.5)
+  glow.addColorStop(0, 'rgba(23,111,180,0.95)')
+  glow.addColorStop(0.45, 'rgba(23,111,180,0.42)')
+  glow.addColorStop(1, 'rgba(23,111,180,0)')
+  ctx.fillStyle = glow
+  ctx.fillRect(0, 0, size, size)
+
+  const core = ctx.createRadialGradient(size * 0.39, size * 0.39, 0, cx, cy, size * 0.24)
+  core.addColorStop(0, PARTNER_DOT_LIGHT)
+  core.addColorStop(0.45, PARTNER_DOT_COLOR)
+  core.addColorStop(1, PARTNER_DOT_DARK)
+  ctx.fillStyle = core
+  ctx.beginPath()
+  ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2)
+  ctx.fill()
+
+  partnerMarkerTexture = new THREE.CanvasTexture(canvas)
+  partnerMarkerTexture.needsUpdate = true
+  return partnerMarkerTexture
+}
+
+const PARTNER_HUB_LABEL = 'Northeastern USA'
+const PARTNER_REGIONAL_MAX_RAD = 0.44
+
+function partnerAngularDistance(a, b) {
+  const v1 = latLonToVector3(a.lat, a.lon, 1).normalize()
+  const v2 = latLonToVector3(b.lat, b.lon, 1).normalize()
+  return Math.acos(Math.min(1, Math.max(-1, v1.dot(v2))))
+}
+
+function buildPartnerConnections(partners) {
+  const hubIndex = partners.findIndex((p) => p.label === PARTNER_HUB_LABEL)
+  const pairKeys = new Set()
+
+  const add = (i, j) => {
+    if (i === j) return
+    const a = Math.min(i, j)
+    const b = Math.max(i, j)
+    pairKeys.add(`${a}-${b}`)
+  }
+
+  if (hubIndex >= 0) {
+    for (let i = 0; i < partners.length; i++) {
+      if (i !== hubIndex) add(hubIndex, i)
+    }
+  }
+
+  for (let i = 0; i < partners.length; i++) {
+    for (let j = i + 1; j < partners.length; j++) {
+      if (partnerAngularDistance(partners[i], partners[j]) <= PARTNER_REGIONAL_MAX_RAD) {
+        add(i, j)
+      }
+    }
+  }
+
+  return [...pairKeys].map((key) => key.split('-').map(Number))
+}
+
+function buildElevatedArc(lat1, lon1, lat2, lon2, radius, steps = 36, peakLift = 0.2) {
+  const v1 = latLonToVector3(lat1, lon1, 1).normalize()
+  const v2 = latLonToVector3(lat2, lon2, 1).normalize()
+  const omega = Math.acos(Math.min(1, Math.max(-1, v1.dot(v2))))
+  const points = []
+
+  if (omega < 0.0001) {
+    points.push(latLonToVector3(lat1, lon1, radius))
+    return points
+  }
+
+  const sinOmega = Math.sin(omega)
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps
+    const a = Math.sin((1 - t) * omega) / sinOmega
+    const b = Math.sin(t * omega) / sinOmega
+    const lift = peakLift * Math.sin(Math.PI * t)
+    points.push(
+      v1
+        .clone()
+        .multiplyScalar(a)
+        .add(v2.clone().multiplyScalar(b))
+        .normalize()
+        .multiplyScalar(radius + lift),
+    )
+  }
+
+  return points
+}
+
+function PartnerNetworkLines() {
+  const tubes = useMemo(() => {
+    const connections = buildPartnerConnections(GLOBAL_PARTNERS)
+
+    return connections.map(([i, j]) => {
+      const a = GLOBAL_PARTNERS[i]
+      const b = GLOBAL_PARTNERS[j]
+      const distance = partnerAngularDistance(a, b)
+      const peakLift = 0.14 + Math.min(0.22, distance * 0.28)
+      const points = buildElevatedArc(a.lat, a.lon, b.lat, b.lon, PARTNER_LINE_RADIUS, 40, peakLift)
+      const curve = new THREE.CatmullRomCurve3(points)
+      const segments = Math.max(14, points.length - 1)
+
+      return new THREE.TubeGeometry(curve, segments, 0.0032, 6, false)
+    })
+  }, [])
+
+  return (
+    <>
+      {tubes.map((geometry, index) => (
+        <mesh key={`partner-line-${index}`} geometry={geometry} renderOrder={5}>
+          <meshBasicMaterial color={PARTNER_LINE_COLOR} transparent opacity={0.92} />
+        </mesh>
+      ))}
+    </>
+  )
+}
+
 const SPIN_SPEED = 0.018
 const SUN_REFRESH_MS = 30000
 
@@ -389,32 +526,88 @@ function AtmosphereGlow({ radius, color, intensity, power, sunUniform }) {
   )
 }
 
-function LocationMarker({ location }) {
-  const markerRef = useRef()
-  const position = useMemo(() => {
-    if (!location) return null
-    return latLonToVector3(location.lat, location.lon, EARTH_RADIUS + 0.015)
-  }, [location])
+function PartnerMarker({ lat, lon, index, label }) {
+  const groupRef = useRef()
+  const spriteRef = useRef()
+  const labelRef = useRef()
+  const texture = useMemo(() => getPartnerMarkerTexture(), [])
+  const position = useMemo(
+    () => latLonToVector3(lat, lon, EARTH_RADIUS + 0.014),
+    [lat, lon],
+  )
+  const labelOffset = useMemo(() => {
+    const normal = position.clone().normalize()
+    return normal.multiplyScalar(PARTNER_MARKER_SCALE * 0.95)
+  }, [position])
 
-  useFrame(({ clock }) => {
-    if (!markerRef.current) return
-    const pulse = 0.85 + Math.sin(clock.getElapsedTime() * 2.2) * 0.25
-    markerRef.current.scale.setScalar(pulse)
+  useFrame(({ clock, camera }) => {
+    if (spriteRef.current) {
+      const pulse = 0.94 + Math.sin(clock.getElapsedTime() * 2.2 + index * 0.55) * 0.08
+      spriteRef.current.scale.setScalar(PARTNER_MARKER_SCALE * pulse)
+    }
+
+    if (groupRef.current && labelRef.current) {
+      const worldPos = new THREE.Vector3()
+      groupRef.current.getWorldPosition(worldPos)
+      const normal = worldPos.clone().normalize()
+      const toCamera = camera.position.clone().sub(worldPos).normalize()
+      const facing = normal.dot(toCamera) > 0.1
+      labelRef.current.style.opacity = facing ? '1' : '0'
+    }
   })
 
-  if (!position) return null
-
   return (
-    <group position={position}>
-      <mesh ref={markerRef}>
-        <sphereGeometry args={[0.05, 16, 16]} />
-        <meshBasicMaterial color="#5ad4ff" transparent opacity={0.9} blending={THREE.AdditiveBlending} />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[0.022, 12, 12]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
+    <group ref={groupRef} position={position}>
+      <sprite
+        ref={spriteRef}
+        scale={[PARTNER_MARKER_SCALE, PARTNER_MARKER_SCALE, 1]}
+        renderOrder={6}
+      >
+        <spriteMaterial
+          map={texture}
+          transparent
+          depthTest
+          depthWrite={false}
+          sizeAttenuation
+        />
+      </sprite>
+      <Html
+        position={[labelOffset.x, labelOffset.y, labelOffset.z]}
+        center
+        distanceFactor={7}
+        zIndexRange={[80, 0]}
+        style={{ pointerEvents: 'none' }}
+      >
+        <div
+          ref={labelRef}
+          style={{
+            color: 'rgba(255,255,255,0.92)',
+            fontSize: '7px',
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            whiteSpace: 'nowrap',
+            textTransform: 'uppercase',
+            transform: 'scale(0.4)',
+            transformOrigin: 'center center',
+            textShadow: '0 1px 6px rgba(0,0,0,0.95), 0 0 10px rgba(2,5,9,0.85)',
+            fontFamily: "'Inter', system-ui, sans-serif",
+            transition: 'opacity 0.2s ease',
+          }}
+        >
+          {label}
+        </div>
+      </Html>
     </group>
+  )
+}
+
+function PartnerMarkers() {
+  return (
+    <>
+      {GLOBAL_PARTNERS.map((partner, index) => (
+        <PartnerMarker key={`${partner.label}-${partner.lat}-${partner.lon}`} {...partner} index={index} />
+      ))}
+    </>
   )
 }
 
@@ -467,7 +660,7 @@ function CloudLayer({ cloudsRef, sunUniform, segments, quality }) {
   )
 }
 
-function TexturedEarth({ sunUniform, baseYaw, location, segments, quality, onError }) {
+function TexturedEarth({ sunUniform, baseYaw, segments, quality, onError }) {
   const groupRef = useRef()
   const earthRef = useRef()
   const cloudsRef = useRef()
@@ -528,7 +721,8 @@ function TexturedEarth({ sunUniform, baseYaw, location, segments, quality, onErr
         <shaderMaterial vertexShader={EARTH_VERT} fragmentShader={EARTH_FRAG} uniforms={earthUniforms} />
       </mesh>
       <CloudLayer cloudsRef={cloudsRef} sunUniform={sunUniform} segments={segments} quality={quality} />
-      <LocationMarker location={location} />
+      <PartnerNetworkLines />
+      <PartnerMarkers />
     </group>
   )
 }
@@ -551,12 +745,14 @@ function FallbackEarth({ sunUniform, baseYaw, segments }) {
           <meshStandardMaterial color={0x16335c} emissive={0x040d1c} emissiveIntensity={0.4} roughness={0.85} metalness={0.05} />
         </mesh>
         <AtmosphereGlow radius={EARTH_RADIUS + 0.1} color="#4ac8ff" intensity={0.85} power={4.0} sunUniform={sunUniform} />
+        <PartnerNetworkLines />
+        <PartnerMarkers />
       </group>
     </>
   )
 }
 
-function Scene({ sunUniform, baseYaw, location, segments, quality }) {
+function Scene({ sunUniform, baseYaw, segments, quality }) {
   const { scene } = useThree()
   const [failed, setFailed] = useState(false)
 
@@ -596,7 +792,6 @@ function Scene({ sunUniform, baseYaw, location, segments, quality }) {
           <TexturedEarth
             sunUniform={sunUniform}
             baseYaw={baseYaw}
-            location={location}
             segments={segments}
             quality={quality}
             onError={() => setFailed(true)}
@@ -625,26 +820,12 @@ function StaticFallback() {
 export default function HeroEarthCanvas() {
   const webglOk = useMemo(() => isWebGLAvailable(), [])
   const sunUniform = useMemo(() => ({ value: getSunDirection(new Date()) }), [])
-  const [location, setLocation] = useState(null)
-  const [baseYaw, setBaseYaw] = useState(0)
+  const baseYaw = DEFAULT_GLOBE_YAW
 
   // Pick a quality tier once from the device's capability and derive every
   // resolution/detail knob from it.
   const quality = useMemo(() => QUALITY[detectQualityTier()], [])
   const segments = quality.segments
-
-  useEffect(() => {
-    let cancelled = false
-    fetchUserLocation().then((loc) => {
-      if (cancelled || !loc) return
-      setLocation(loc)
-      const v = latLonToVector3(loc.lat, loc.lon, 1)
-      setBaseYaw(-Math.atan2(v.x, v.z))
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     const update = () => getSunDirection(new Date(), sunUniform.value)
@@ -678,7 +859,7 @@ export default function HeroEarthCanvas() {
       frameloop="always"
       style={{ width: '100%', height: '100%', background: '#020509' }}
     >
-      <Scene sunUniform={sunUniform} baseYaw={baseYaw} location={location} segments={segments} quality={quality} />
+      <Scene sunUniform={sunUniform} baseYaw={baseYaw} segments={segments} quality={quality} />
     </Canvas>
   )
 }
