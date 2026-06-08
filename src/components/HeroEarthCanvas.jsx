@@ -387,7 +387,7 @@ const CLOUD_FRAG = `
 
   void main() {
     float density = cloudDensitySoft(vUv);
-    float coverage = smoothstep(0.05, 0.33, density);
+    float coverage = smoothstep(0.12, 0.48, density);
     if (coverage <= 0.001) discard;
 
     // Soft relief sampled from the real cloud-map gradient gives gentle,
@@ -422,8 +422,8 @@ const CLOUD_FRAG = `
     cloudColor += vec3(1.0, 0.97, 0.92) * forwardScatter * coverage * 0.22 * dayMix;
 
     // Thin wisps stay translucent, dense cores read solid.
-    float alpha = coverage * mix(0.2, uOpacity, dayMix);
-    gl_FragColor = vec4(cloudColor, clamp(alpha, 0.0, 0.86));
+    float alpha = coverage * mix(0.12, uOpacity, dayMix);
+    gl_FragColor = vec4(cloudColor, clamp(alpha, 0.0, 0.52));
   }
 `
 
@@ -621,7 +621,7 @@ function CloudLayer({ cloudsRef, sunUniform, segments, quality }) {
       uClouds: { value: createEmptyCloudTexture() },
       uCloudTexel: { value: new THREE.Vector2(1 / 1024, 1 / 512) },
       uSunDir: sunUniform,
-      uOpacity: { value: 0.78 },
+      uOpacity: { value: 0.42 },
     }),
     [sunUniform],
   )
@@ -698,7 +698,7 @@ function TexturedEarth({ sunUniform, baseYaw, segments, quality, onError }) {
       uClouds: { value: createEmptyCloudTexture() },
       uCloudTexel: { value: new THREE.Vector2(1 / 1024, 1 / 512) },
       uSunDir: sunUniform,
-      uCloudShadow: { value: 0.2 },
+      uCloudShadow: { value: 0.07 },
       uCloudPhase: { value: 0 },
     }
   }, [textures, sunUniform])
