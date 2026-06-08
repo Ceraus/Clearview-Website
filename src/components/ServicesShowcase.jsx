@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SERVICES_DATA } from '../data/siteData'
 import { scrollToSection } from '../utils/navScroll'
+import { useTheme } from '../context/ThemeContext'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -15,11 +16,25 @@ function scrollToSlide(i) {
   window.scrollTo({ top: y, behavior: 'smooth' })
 }
 
+const CLICKED_LINK = '#475569'
+
 function ServiceItem({ service, index, registerRef, stackOrder }) {
   const rootRef  = useRef()
   const imageRef = useRef()
+  const [clickedLink, setClickedLink] = useState(null)
+  const { isDark } = useTheme()
   const prev = SERVICES_DATA[index - 1] || null
   const next = SERVICES_DATA[index + 1] || null
+
+  const setLinkColor = (el, id, hoverColor = '#29b6ff') => {
+    if (!el) return
+    el.style.color = clickedLink === id ? CLICKED_LINK : hoverColor
+  }
+
+  const resetLinkColor = (el, id) => {
+    if (!el) return
+    el.style.color = clickedLink === id ? CLICKED_LINK : 'var(--text-muted)'
+  }
 
   useEffect(() => {
     registerRef(index, rootRef.current)
@@ -69,7 +84,7 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
       <div
         className="relative flex justify-center"
         style={{
-          marginTop: '-84px',
+          marginTop: '-149px',
           paddingInline: '4%',
           zIndex: stackOrder,
         }}
@@ -100,10 +115,17 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
               <div className="flex items-center justify-center gap-5 flex-wrap">
                 <button
                   className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 whitespace-nowrap"
-                  style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#29b6ff' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}
+                  style={{
+                    color: clickedLink === 'back' ? CLICKED_LINK : 'var(--text-muted)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                  onMouseEnter={(e) => setLinkColor(e.currentTarget, 'back')}
+                  onMouseLeave={(e) => resetLinkColor(e.currentTarget, 'back')}
                   onClick={() => {
+                    setClickedLink('back')
                     if (prev) {
                       scrollToSlide(index - 1)
                     } else {
@@ -120,10 +142,21 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
                 {next && (
                   <button
                     className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 whitespace-nowrap"
-                    style={{ color: '#29b6ff', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = '#b3ff71' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#29b6ff' }}
-                    onClick={() => scrollToSlide(index + 1)}
+                    style={{
+                      color: clickedLink === 'next' ? CLICKED_LINK : '#29b6ff',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                    onMouseEnter={(e) => setLinkColor(e.currentTarget, 'next', isDark ? '#b3ff71' : '#29b6ff')}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = clickedLink === 'next' ? CLICKED_LINK : '#29b6ff'
+                    }}
+                    onClick={() => {
+                      setClickedLink('next')
+                      scrollToSlide(index + 1)
+                    }}
                   >
                     Next: {next.title}
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -191,7 +224,7 @@ export default function ServicesShowcase() {
         style={{ marginBottom: '8px' }}
       >
         <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
-          Services We Offer
+          Solutions We Offer
         </p>
         <h2 className="gradient-title text-3xl md:text-4xl font-bold">
           Our Services

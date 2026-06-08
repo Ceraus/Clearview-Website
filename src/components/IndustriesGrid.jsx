@@ -23,7 +23,7 @@ export default function IndustriesGrid() {
       style={{ background: 'var(--bg)', paddingTop: '54px', paddingBottom: '10vh' }}
     >
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center" style={{ marginBottom: '54px' }}>
+        <div className="text-center" style={{ marginBottom: 'min(5vh, 45px)' }}>
           <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
             Who We Serve
           </p>
@@ -32,7 +32,7 @@ export default function IndustriesGrid() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2" style={{ marginBottom: 'min(5vh, 45px)' }}>
           {INDUSTRIES_DATA.map((industry, index) => (
             <BentoTile key={industry.linkRoute} industry={industry} index={index} />
           ))}
@@ -122,7 +122,7 @@ function BentoTile({ industry, index }) {
         {String(index + 1).padStart(2, '0')}
       </span>
 
-      <div className="relative w-full flex items-center justify-center" style={{ aspectRatio: '1 / 1' }}>
+      <div className="relative w-full flex items-center justify-center" style={{ aspectRatio: '1 / 1', padding: '10px' }}>
         <img
           src={industry.iconPath}
           alt={industry.title}

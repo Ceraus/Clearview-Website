@@ -66,7 +66,7 @@ export function ServicesIconMenu({
               marginBottom: `${Math.round(isSubmenu ? 12 : 16 * scale * 0.7)}px`,
             }}
           >
-            Services We Offer
+            Solutions We Offer
           </p>
         )}
 

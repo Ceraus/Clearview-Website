@@ -132,7 +132,7 @@ export default function Footer() {
       <PlexusOverlay opacity={0.7} nodeCount={81} linkDist={115} scale={1.5} color={isDark ? undefined : '#176fb4'} />
 
       <div className="relative max-w-7xl mx-auto px-8 py-10" style={{ zIndex: 1 }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 items-stretch lg:min-h-[420px]">
           <div className="flex flex-col justify-center">
             <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-4 font-light">
               Services We Offer
@@ -174,7 +174,7 @@ export default function Footer() {
           </div>
 
           <div
-            className="overflow-hidden rounded-2xl min-h-[260px] sm:col-span-2 lg:col-span-1"
+            className="overflow-hidden rounded-2xl h-full min-h-[280px] sm:col-span-2 lg:col-span-1 flex"
             style={{
               border: '1px solid rgba(41,182,255,0.18)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
@@ -183,14 +183,14 @@ export default function Footer() {
             <iframe
               title="Clearview Global office location"
               src={MAP_EMBED}
-              className="w-full h-full min-h-[260px] border-0"
+              className="w-full h-full min-h-[280px] border-0 flex-1"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
           </div>
 
-          <div className="flex flex-col justify-center gap-5 sm:col-span-2 lg:col-span-1">
+          <div className="flex flex-col justify-center h-full gap-5 sm:col-span-2 lg:col-span-1">
             <div style={{ marginBottom: '8px' }}>
               <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
                 Where to Find Us
