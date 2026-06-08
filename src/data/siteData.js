@@ -3,7 +3,7 @@ export const SERVICES_DATA = [
     title: "Managed IT Services",
     description:
       "Clearview Global keeps all your business computers, servers, and networks running smoothly and securely around the clock. We act as your dedicated technology team, managing every complex technical detail behind the scenes so you never have to worry about downtime. This allows your leadership to focus entirely on running the business and driving growth.",
-    imagePath: "/assets/Managed IT Services.jpg",
+    imagePath: "/assets/Managed IT Services.jpg?v=2",
     iconPath: "/assets/Managed IT Services.svg",
     linkRoute: "/services/managed-it",
   },
@@ -11,7 +11,7 @@ export const SERVICES_DATA = [
     title: "Cyber Security Services",
     description:
       "We actively protect your company's sensitive data, financial information, and client records from hackers and sophisticated cyberattacks. Our experts provide continuous monitoring, building a powerful digital wall around your business to stop threats before they can do damage. This comprehensive defense safeguards your reputation and shields you from devastating financial losses.",
-    imagePath: "/assets/Advanced Cyber Security Services.jpg",
+    imagePath: "/assets/Advanced Cyber Security Services.jpg?v=2",
     iconPath: "/assets/Advanced Cyber Security Services.svg",
     linkRoute: "/services/cyber-security",
   },
