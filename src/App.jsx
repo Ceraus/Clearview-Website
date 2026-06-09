@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AssetPreloader from './components/AssetPreloader'
 import Navbar from './components/Navbar'
+import ScrollProgressBar from './components/ScrollProgressBar'
 import Footer from './components/Footer'
 import PlexusDivider from './components/PlexusDivider'
 import ScrollToTop from './components/ScrollToTop'
@@ -48,6 +49,7 @@ export default function App() {
     <ThemeProvider>
       <AssetPreloader>
         <BrowserRouter>
+          <ScrollProgressBar />
           <Navbar />
           <ThemeToggle />
           <Suspense fallback={<PageLoader />}>
