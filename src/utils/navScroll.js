@@ -1,4 +1,10 @@
-export function scrollToSection(id, offset = 64) {
+import { NAV_BAR_HEIGHT, NAV_SCROLL_OFFSET } from '../constants/layout'
+
+export function getServiceScrollOffset() {
+  return NAV_BAR_HEIGHT + 8
+}
+
+export function scrollToSection(id, offset = NAV_SCROLL_OFFSET) {
   const el = document.getElementById(id)
   if (!el) return false
   const y = el.getBoundingClientRect().top + window.scrollY - offset
@@ -6,20 +12,14 @@ export function scrollToSection(id, offset = 64) {
   return true
 }
 
-export function scrollToService(index, offset = 70) {
+export function scrollToService(index, offset) {
   const info = window.__showcaseInfo
+  const useOffset = offset ?? getServiceScrollOffset()
   if (info?.slideEls?.[index]) {
-    const y = info.slideEls[index].getBoundingClientRect().top + window.scrollY - offset
+    const y = info.slideEls[index].getBoundingClientRect().top + window.scrollY - useOffset
     window.scrollTo({ top: y, behavior: 'smooth' })
     return true
   }
-  return scrollToSection('services-showcase', offset)
+  return scrollToSection('services-showcase', useOffset)
 }
 
-export function scrollToIndustry(index, offset = 64) {
-  const scrolled = scrollToSection(`industry-tile-${index}`, offset)
-  if (!scrolled) scrollToSection('industries', offset)
-  window.setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('industryHighlight', { detail: { index } }))
-  }, 450)
-}

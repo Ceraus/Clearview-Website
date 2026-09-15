@@ -1,16 +1,18 @@
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { INDUSTRIES_DATA, SERVICES_DATA } from '../data/siteData'
+import { SERVICES_DATA } from '../data/siteData'
 import PlexusOverlay from './PlexusOverlay'
 import { useTheme } from '../context/ThemeContext'
 
-const ADDRESS = '150 W 22nd St, New York, NY 10011'
+import { NAV_SCROLL_OFFSET } from '../constants/layout'
+
+const ADDRESS = '287 Park Ave, New York, NY 10171'
 const MAP_EMBED = `https://maps.google.com/maps?q=${encodeURIComponent(ADDRESS)}&z=15&output=embed`
-const NAV_OFFSET = 64
 
 function scrollToSection(id) {
   const el = document.getElementById(id)
   if (!el) return
-  const y = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET
+  const y = el.getBoundingClientRect().top + window.scrollY - NAV_SCROLL_OFFSET
   window.scrollTo({ top: y, behavior: 'smooth' })
 }
 
@@ -93,6 +95,41 @@ const contactIconStyle = {
   border: '1px solid rgba(41,182,255,0.25)',
 }
 
+function CopyLink({ href, copyValue, children }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = async (e) => {
+    e.preventDefault()
+    try {
+      await navigator.clipboard.writeText(copyValue)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1600)
+    } catch {
+      window.location.href = href
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2 min-w-0">
+      {children}
+      <button
+        type="button"
+        onClick={copy}
+        className="text-[10px] font-semibold uppercase tracking-wide shrink-0"
+        style={{
+          color: copied ? '#6b974d' : '#29b6ff',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '2px 0',
+        }}
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+    </div>
+  )
+}
+
 export default function Footer() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -107,22 +144,6 @@ export default function Footer() {
     scrollToSection(id)
   }
 
-  const triggerIndustryHighlight = (index) => {
-    window.setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('industryHighlight', { detail: { index } }))
-    }, 650)
-  }
-
-  const goToIndustry = (index) => {
-    const id = `industry-tile-${index}`
-    if (location.pathname !== '/') {
-      navigate({ pathname: '/', hash: id })
-      return
-    }
-    scrollToSection(id)
-    triggerIndustryHighlight(index)
-  }
-
   return (
     <footer
       id="site-footer"
@@ -131,15 +152,15 @@ export default function Footer() {
     >
       <PlexusOverlay opacity={0.7} nodeCount={81} linkDist={115} scale={1.5} color={isDark ? undefined : '#176fb4'} />
 
-      <div className="relative max-w-7xl mx-auto px-8 py-10" style={{ zIndex: 1 }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 items-stretch lg:min-h-[420px]">
+      <div className="relative max-w-7xl mx-auto px-8 pb-10 pt-16" style={{ zIndex: 1 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-8 items-stretch lg:min-h-[420px]">
           <div className="flex flex-col justify-center">
             <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-4 font-light">
               Services We Offer
             </p>
             <ul className="flex flex-col gap-2.5">
               {SERVICES_DATA.map((service, index) => (
-                <li key={service.linkRoute}>
+                <li key={service.title}>
                   <button
                     type="button"
                     onClick={() => goToService(index)}
@@ -147,26 +168,6 @@ export default function Footer() {
                     style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   >
                     {service.title}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-col justify-center">
-            <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-4 font-light">
-              Industries We Serve
-            </p>
-            <ul className="flex flex-col gap-2.5">
-              {INDUSTRIES_DATA.map((industry, index) => (
-                <li key={industry.linkRoute}>
-                  <button
-                    type="button"
-                    onClick={() => goToIndustry(index)}
-                    className="text-left text-xs leading-snug transition-colors duration-200 hover:text-[#29b6ff]"
-                    style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                  >
-                    {industry.title}
                   </button>
                 </li>
               ))}
@@ -214,39 +215,43 @@ export default function Footer() {
               </div>
             </div>
 
-            <a
-              href="tel:2129201234"
-              className="flex items-center gap-2.5 min-w-0 transition-opacity duration-200 hover:opacity-90"
-            >
-              <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}>
-                <PhoneIcon />
-              </div>
-              <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
-                  We Can Help
-                </p>
-                <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
-                  212-920-1234
-                </p>
-              </div>
-            </a>
+            <CopyLink href="tel:2129201234" copyValue="212-920-1234">
+              <a
+                href="tel:2129201234"
+                className="flex items-center gap-2.5 min-w-0 transition-opacity duration-200 hover:opacity-90"
+              >
+                <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}>
+                  <PhoneIcon />
+                </div>
+                <div className="leading-tight min-w-0">
+                  <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
+                    We Can Help
+                  </p>
+                  <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
+                    212-920-1234
+                  </p>
+                </div>
+              </a>
+            </CopyLink>
 
-            <a
-              href="mailto:info@clearviewglobal.com"
-              className="flex items-center gap-2.5 min-w-0 transition-opacity duration-200 hover:opacity-90"
-            >
-              <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}>
-                <EmailIcon />
-              </div>
-              <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
-                  Email Us
-                </p>
-                <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
-                  info@clearviewglobal.com
-                </p>
-              </div>
-            </a>
+            <CopyLink href="mailto:info@clearviewglobal.com" copyValue="info@clearviewglobal.com">
+              <a
+                href="mailto:info@clearviewglobal.com"
+                className="flex items-center gap-2.5 min-w-0 transition-opacity duration-200 hover:opacity-90"
+              >
+                <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}>
+                  <EmailIcon />
+                </div>
+                <div className="leading-tight min-w-0">
+                  <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
+                    Email Us
+                  </p>
+                  <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
+                    info@clearviewglobal.com
+                  </p>
+                </div>
+              </a>
+            </CopyLink>
 
             <div className="flex items-center justify-center gap-3 pt-1 w-full">
               <a

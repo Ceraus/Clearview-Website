@@ -1,18 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { SERVICES_DATA } from '../data/siteData'
-import { scrollToSection } from '../utils/navScroll'
+import { scrollToSection, scrollToService } from '../utils/navScroll'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const NAV_OFFSET = 70
-
 function scrollToSlide(i) {
-  const info = window.__showcaseInfo
-  if (!info || !info.slideEls[i]) return
-  const y = info.slideEls[i].getBoundingClientRect().top + window.scrollY - NAV_OFFSET
-  window.scrollTo({ top: y, behavior: 'smooth' })
+  scrollToService(i)
 }
 
 const CLICKED_LINK = '#475569'
@@ -25,8 +20,8 @@ const GLASS_DIALOGUE_STYLE = {
   boxShadow: '0 8px 40px rgba(15,23,42,0.14), inset 0 1px 0 rgba(255,255,255,1), 0 0 0 1px rgba(15,23,42,0.05)',
 }
 
-function ServiceItem({ service, index, registerRef, stackOrder }) {
-  const rootRef  = useRef()
+function ServiceItem({ service, index, registerRef, stackOrder, isActive }) {
+  const rootRef = useRef()
   const imageRef = useRef()
   const [clickedLink, setClickedLink] = useState(null)
   const prev = SERVICES_DATA[index - 1] || null
@@ -45,7 +40,11 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
   useEffect(() => {
     registerRef(index, rootRef.current)
     if (!imageRef.current) return
-    // Subtle reveal as each image scrolls into view
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+    if (reduce) {
+      imageRef.current.style.opacity = '1'
+      return undefined
+    }
     const tween = gsap.fromTo(imageRef.current,
       { opacity: 0, scale: 1.05 },
       {
@@ -61,18 +60,12 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
       ref={rootRef}
       data-index={index}
       id={`service-slide-${index}`}
-      className="w-full flex flex-col"
-      style={{ margin: 0, padding: 0, paddingBottom: '64px', overflow: 'visible', position: 'relative' }}
+      className="w-full flex flex-col pb-10 md:pb-16"
+      style={{ margin: 0, overflow: 'visible', position: 'relative' }}
     >
       <div
-        style={{
-          width: '100%',
-          aspectRatio: '21 / 9',
-          position: 'relative',
-          overflow: 'hidden',
-          boxSizing: 'border-box',
-          background: 'var(--bg)',
-        }}
+        className="w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] relative overflow-hidden"
+        style={{ boxSizing: 'border-box', background: 'var(--bg)' }}
       >
         <div ref={imageRef} className="absolute inset-0 flex items-center justify-center" style={{ background: 'var(--bg)' }}>
           <img
@@ -88,34 +81,33 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
       </div>
 
       <div
-        className="relative flex justify-center"
+        className="relative flex justify-center px-3 sm:px-4 md:px-0 mt-5 sm:mt-6 md:-mt-44 lg:-mt-64 xl:-mt-[309px]"
         style={{
-          marginTop: '-309px',
-          paddingInline: '4%',
           zIndex: stackOrder,
         }}
       >
         <div
+          className="w-full max-w-[1430px] rounded-2xl md:rounded-[21px] p-[21px] sm:p-[26px] md:px-[34px] md:py-[21px] transition-shadow duration-300"
           style={{
-            width: 'min(92%, 1100px)',
-            borderRadius: '16px',
-            padding: '16px 26px',
             ...GLASS_DIALOGUE_STYLE,
+            boxShadow: isActive
+              ? '0 10px 44px rgba(15,23,42,0.16), 0 0 0 1px rgba(41,182,255,0.18)'
+              : GLASS_DIALOGUE_STYLE.boxShadow,
           }}
         >
-            <div className="flex flex-col gap-4 text-center">
+            <div className="flex flex-col gap-5 sm:gap-6 text-center">
               <div>
-                <h2 className="text-lg font-bold leading-tight mb-1" style={{ color: '#176fb4' }}>
+                <h2 className="text-base sm:text-lg font-bold leading-tight mb-2 sm:mb-1" style={{ color: '#176fb4' }}>
                   {service.title}
                 </h2>
-                <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+                <p className="text-sm sm:text-[15px] leading-relaxed" style={{ color: '#475569' }}>
                   {service.description}
                 </p>
               </div>
 
-              <div className="flex items-center justify-center gap-5 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-5">
                 <button
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 whitespace-nowrap"
+                  className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors duration-200 sm:whitespace-nowrap"
                   style={{
                     color: clickedLink === 'back' ? CLICKED_LINK : '#64748b',
                     background: 'none',
@@ -142,7 +134,7 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
 
                 {next && (
                   <button
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 whitespace-nowrap"
+                    className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors duration-200 sm:whitespace-nowrap"
                     style={{
                       color: clickedLink === 'next' ? CLICKED_LINK : '#29b6ff',
                       background: 'none',
@@ -175,8 +167,9 @@ function ServiceItem({ service, index, registerRef, stackOrder }) {
 
 export default function ServicesShowcase() {
   const sectionRef = useRef()
-  const slideEls   = useRef([])
-  const activeRef  = useRef(0)
+  const slideEls = useRef([])
+  const activeRef = useRef(0)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   const registerRef = (i, el) => { slideEls.current[i] = el }
 
@@ -191,24 +184,47 @@ export default function ServicesShowcase() {
     }
 
     const handleScroll = () => {
-      const mid = window.scrollY + window.innerHeight / 2
-      let best = 0, bestDist = Infinity
+      const mid = window.innerHeight * 0.42
+      let best = 0
+      let bestDist = Infinity
       slideEls.current.forEach((el, i) => {
         if (!el) return
-        const center = el.offsetTop + el.offsetHeight / 2
+        const center = el.getBoundingClientRect().top + el.offsetHeight / 2
         const dist = Math.abs(center - mid)
         if (dist < bestDist) { bestDist = dist; best = i }
       })
       if (best !== activeRef.current) {
         activeRef.current = best
+        setActiveIndex(best)
         window.dispatchEvent(new CustomEvent('serviceChange', { detail: { index: best } }))
       }
     }
 
+    const handleKey = (e) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLButtonElement
+      ) return
+      const rect = section.getBoundingClientRect()
+      const inView = rect.top < window.innerHeight * 0.7 && rect.bottom > window.innerHeight * 0.25
+      if (!inView) return
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        scrollToSlide(Math.min(activeRef.current + 1, SERVICES_DATA.length - 1))
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        scrollToSlide(Math.max(activeRef.current - 1, 0))
+      }
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('keydown', handleKey)
     handleScroll()
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('keydown', handleKey)
       delete window.__showcaseInfo
     }
   }, [])
@@ -218,7 +234,14 @@ export default function ServicesShowcase() {
       id="services-showcase"
       ref={sectionRef}
       className="relative w-full flex flex-col items-center"
-      style={{ background: 'var(--bg)', gap: 0, margin: 0, paddingTop: '2.26vh', paddingBottom: '3.21vh', overflow: 'visible' }}
+      style={{
+        background: 'var(--bg)',
+        gap: 0,
+        margin: 0,
+        paddingTop: '2.26vh',
+        paddingBottom: 'clamp(80px, 12vh, 140px)',
+        overflow: 'visible',
+      }}
     >
       <div
         className="w-full max-w-7xl mx-auto px-4 relative z-10 text-center"
@@ -235,15 +258,15 @@ export default function ServicesShowcase() {
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, overflow: 'visible' }}>
         {SERVICES_DATA.map((service, i) => (
           <ServiceItem
-            key={service.linkRoute}
+            key={service.title}
             service={service}
             index={i}
             registerRef={registerRef}
             stackOrder={SERVICES_DATA.length - i}
+            isActive={activeIndex === i}
           />
         ))}
       </div>
     </section>
   )
 }
-

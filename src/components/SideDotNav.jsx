@@ -29,7 +29,11 @@ const SHORT_LABELS = [
 
 function buildNavItems() {
   return [
-    { id: 'hero', label: 'Home', scroll: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    {
+      id: 'company',
+      label: 'Home',
+      scroll: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+    },
     ...SERVICES_DATA.map((_, i) => ({
       id: `service-${i}`,
       label: SHORT_LABELS[i],
@@ -40,16 +44,6 @@ function buildNavItems() {
         window.scrollTo({ top: y, behavior: 'smooth' })
       },
     })),
-    {
-      id: 'company',
-      label: 'Company',
-      scroll: () => scrollToSection('company-mission'),
-    },
-    {
-      id: 'industries',
-      label: 'Industries',
-      scroll: () => scrollToSection('industries'),
-    },
     {
       id: 'contact',
       label: 'Contact',
@@ -66,9 +60,7 @@ function scrollToSection(id) {
 }
 
 function getNavTargetElement(id) {
-  if (id === 'hero') return document.getElementById('hero')
   if (id === 'company') return document.getElementById('company-mission')
-  if (id === 'industries') return document.getElementById('industries')
   if (id === 'contact') return document.getElementById('site-footer')
   if (id.startsWith('service-')) return document.getElementById(`service-slide-${id.replace('service-', '')}`)
   return null
@@ -242,7 +234,7 @@ export default function SideDotNav() {
 
   const isInteractive = menuOpacity > 0.04
   const serviceStart = 1
-  const companyIndex = serviceStart + SERVICES_DATA.length
+  const contactIndex = serviceStart + SERVICES_DATA.length
 
   return (
     <div
@@ -292,7 +284,7 @@ export default function SideDotNav() {
         {navItems.map((item, i) => (
           <div key={item.id} className="contents">
             {i === serviceStart && <SectionDivider isLightMenu={isLightMenu} />}
-            {i === companyIndex && <SectionDivider isLightMenu={isLightMenu} />}
+            {i === contactIndex && <SectionDivider isLightMenu={isLightMenu} />}
             <NavDotButton
               dotRef={(el) => { dotRefs.current[i] = el }}
               label={item.label}

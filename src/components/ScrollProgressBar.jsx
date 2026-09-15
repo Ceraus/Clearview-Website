@@ -23,9 +23,8 @@ export default function ScrollProgressBar() {
   return (
     <div
       aria-hidden="true"
-      className="fixed left-0 right-0"
+      className="absolute left-0 right-0 bottom-0"
       style={{
-        top: '64px',
         height: '3px',
         zIndex: 60,
         background: 'transparent',

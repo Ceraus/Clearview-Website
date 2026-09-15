@@ -136,7 +136,7 @@ export default function SpinningLogoCanvas({
 }) {
   return (
     <div
-      className="mx-auto block"
+      className="block shrink-0"
       style={{
         width: maxWidth,
         height,

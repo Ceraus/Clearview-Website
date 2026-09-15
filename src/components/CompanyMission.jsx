@@ -1,39 +1,70 @@
+import { useState } from 'react'
 import SpinningLogoCanvas from './SpinningLogoCanvas'
+import { NAV_BAR_HEIGHT } from '../constants/layout'
 
-const OFFICE_IMAGE = '/assets/clearviewglobal_outside.jpg?v=2'
+const OFFICE_IMAGE = '/assets/clearviewglobal-facade-blueprint.png'
+const WORDMARK = '/assets/clearview-earth-logo-textonly.png'
 
 export default function CompanyMission() {
+  const [imageActive, setImageActive] = useState(false)
+
   return (
     <section
       id="company-mission"
       className="relative px-4"
-      style={{ background: 'var(--bg)', marginTop: 0, paddingTop: 0, paddingBottom: '80px' }}
+      style={{
+        background: 'var(--bg)',
+        marginTop: 0,
+        paddingTop: `${NAV_BAR_HEIGHT + 88}px`,
+        paddingBottom: '140px',
+      }}
     >
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center">
           <div
-            className="md:w-[42%] shrink-0 overflow-hidden rounded-2xl"
+            className="md:w-[42%] shrink-0 overflow-hidden rounded-2xl transition-all duration-300"
             style={{
-              border: '1px solid rgba(41,182,255,0.15)',
-              boxShadow: '0 8px 48px rgba(0,0,0,0.45)',
+              border: imageActive ? '1px solid rgba(41,182,255,0.42)' : '1px solid rgba(41,182,255,0.15)',
+              boxShadow: imageActive
+                ? '0 12px 48px rgba(15,23,42,0.18), 0 0 0 1px rgba(41,182,255,0.12)'
+                : '0 8px 48px rgba(0,0,0,0.45)',
               minHeight: '280px',
             }}
+            onMouseEnter={() => setImageActive(true)}
+            onMouseLeave={() => setImageActive(false)}
           >
             <img
               src={OFFICE_IMAGE}
-              alt="Clearview Global office exterior"
-              className="w-full h-full min-h-[280px] object-cover"
+              alt="United Charities Building facade elevation at 287 Park Ave"
+              className="w-full h-full min-h-[280px] object-cover object-top transition-transform duration-500"
+              style={{ transform: imageActive ? 'scale(1.02)' : 'scale(1)' }}
               loading="lazy"
             />
           </div>
 
           <div className="flex-1 flex flex-col min-w-0">
             <div className="flex flex-col items-center w-full text-center">
-              <SpinningLogoCanvas
-                maxWidth="min(100%, 420px)"
-                height="min(14vw, 150px)"
-                marginBottom="0"
-              />
+              <div className="flex items-center justify-center" style={{ gap: 0 }}>
+                <SpinningLogoCanvas
+                  maxWidth="min(7.7vw, 84px)"
+                  height="min(7.7vw, 84px)"
+                  marginBottom="0"
+                />
+                <img
+                  src={WORDMARK}
+                  alt="Clearview Global"
+                  className="object-contain self-center"
+                  style={{
+                    display: 'block',
+                    height: 'min(9.5vw, 72px)',
+                    width: 'auto',
+                    maxWidth: 'min(48vw, 220px)',
+                    margin: 0,
+                    padding: 0,
+                    transform: 'translate(-10px, 8px)',
+                  }}
+                />
+              </div>
               <p
                 className="section-label text-[10px] tracking-[0.4em] uppercase font-light"
                 style={{ margin: '6px 0 0' }}
@@ -46,7 +77,7 @@ export default function CompanyMission() {
             </div>
 
             <div
-              className="rounded-2xl p-8 md:p-10 flex-1"
+              className="rounded-2xl p-8 md:p-10 w-full"
               style={{
                 background: 'var(--bg-glass)',
                 backdropFilter: 'blur(24px)',
@@ -55,11 +86,8 @@ export default function CompanyMission() {
                 boxShadow: '0 12px 64px var(--shadow), 0 4px 24px var(--shadow)',
               }}
             >
-              <p className="text-sm md:text-base leading-relaxed mb-6" style={{ color: 'var(--text-body)' }}>
-                Founded in Manhattan in 2009, Clearview Global is a premier IT consulting and managed services provider built on a core philosophy: technology should never be viewed merely as an operational cost, but as a strategic asset that unlocks your company&apos;s full potential. We are a dedicated collective of system architects, cybersecurity specialists, and technology strategists who operate as a seamless extension of your organization. Because we believe that reacting to problems is no longer a viable strategy in today&apos;s digital landscape, our approach is rooted in architectural foresight. We have spent over a decade mastering the complexities of digital infrastructure, anticipating technological shifts, and building highly secure, scalable systems so that you don&apos;t have to.
-              </p>
               <p className="text-sm md:text-base leading-relaxed" style={{ color: 'var(--text-body)' }}>
-                Our mission is to eliminate the friction between your business goals and the technology required to achieve them. By designing, securing, and maintaining enterprise-grade IT environments, we deliver proactive, uncompromising support that drives operational efficiency. We transform your IT investments into a definitive competitive advantage, ensuring your leadership team can stop worrying about downtime, complex integrations, or cyber threats. We care about your business, and we are with you for the long haul—empowering you to focus entirely on sustainable growth and market dominance.
+                Born in Manhattan (2009), Clearview Global was built on a single core belief: technology isn&apos;t an operational expense—it&apos;s your greatest strategic asset. Functioning as your extended team, our collective of system architects, cybersecurity experts, and tech strategists operates as a seamless extension of your organization. We prioritize architectural foresight over firefights, anticipating shifts, engineering secure infrastructure, and stopping issues before they disrupt your operations. The result is zero friction and total clarity; by proactively securing and managing enterprise-grade IT, we eliminate downtime and cyber threats, turning your tech stack into a definitive competitive advantage.
               </p>
             </div>
           </div>
@@ -68,4 +96,3 @@ export default function CompanyMission() {
     </section>
   )
 }
-

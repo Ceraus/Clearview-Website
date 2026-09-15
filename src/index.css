@@ -135,8 +135,7 @@
   }
 
   /* Shared "Empower" gradient effect — dark mode only. */
-  .gradient-title,
-  .industries-heading-accent {
+  .gradient-title {
     background: linear-gradient(135deg, #29b6ff 0%, #b3ff71 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -145,18 +144,10 @@
   }
 
   /* Light mode: revert titles to the original solid title color. */
-  [data-theme="light"] .gradient-title,
-  [data-theme="light"] .industries-heading-accent {
+  [data-theme="light"] .gradient-title {
     background: none;
     -webkit-text-fill-color: var(--text-title);
     color: var(--text-title);
-  }
-
-  /* Titles sitting on an always-dark surface (e.g. sub-page hero) stay white
-     in light mode instead of taking the light title color. */
-  [data-theme="light"] .gradient-title--on-dark {
-    -webkit-text-fill-color: #ffffff;
-    color: #ffffff;
   }
 
   [data-theme="light"] .services-menu-light {
@@ -169,10 +160,107 @@
     --text-muted: rgba(255, 255, 255, 0.50);
     color: rgba(255, 255, 255, 0.72);
   }
+
+  :focus-visible {
+    outline: 2px solid #29b6ff;
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.45s;
   animation-timing-function: ease-in-out;
+}
+
+.le-parc-field {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text-strong);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+}
+
+.le-parc-field::placeholder {
+  color: var(--text-dim);
+}
+
+.le-parc-field.is-invalid {
+  border-color: #b42318;
+}
+
+.le-parc-intake textarea.le-parc-field {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.le-parc-honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.le-parc-urgency {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.le-parc-urgency-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid;
+  padding: 0.55rem 0.4rem;
+  cursor: pointer;
+}
+
+.le-parc-urgency-option:focus-within {
+  outline: 2px solid #29b6ff;
+  outline-offset: 3px;
+}
+
+.le-parc-urgency-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 480px) {
+  .le-parc-urgency {
+    grid-template-columns: 1fr;
+  }
 }
