@@ -13,21 +13,63 @@ const DARK_STYLE = {
   boxShadow: '0 4px 20px rgba(0,0,0,0.45), 0 0 16px rgba(41,182,255,0.12)',
 }
 
+const FAB_SIZE = 44
+
+function boxesOverlap(a, b) {
+  return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom)
+}
+
+function fabOverlapsContent() {
+  const mobile = window.innerWidth < 768
+  const bottom = mobile ? 72 : 16
+  const right = 16
+  const fab = {
+    left: window.innerWidth - right - FAB_SIZE,
+    right: window.innerWidth - right,
+    top: window.innerHeight - bottom - FAB_SIZE,
+    bottom: window.innerHeight - bottom,
+  }
+  const nodes = document.querySelectorAll('.le-parc-intake .rounded-2xl, .service-list-item')
+  return [...nodes].some((node) => boxesOverlap(fab, node.getBoundingClientRect()))
+}
+
 export default function ScrollToTop() {
   const { isDark } = useTheme()
   const isLight = !isDark
   const [visible, setVisible] = useState(false)
+  const [formFocused, setFormFocused] = useState(false)
+  const [coveringForm, setCoveringForm] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
       setVisible(window.scrollY > window.innerHeight * 0.25)
+      setCoveringForm(fabOverlapsContent())
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
     handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
   }, [])
 
-  if (!visible) return null
+  useEffect(() => {
+    const onFocusIn = (event) => {
+      if (event.target.closest?.('.le-parc-intake')) setFormFocused(true)
+    }
+    const onFocusOut = (event) => {
+      if (!event.relatedTarget?.closest?.('.le-parc-intake')) setFormFocused(false)
+    }
+    document.addEventListener('focusin', onFocusIn)
+    document.addEventListener('focusout', onFocusOut)
+    return () => {
+      document.removeEventListener('focusin', onFocusIn)
+      document.removeEventListener('focusout', onFocusOut)
+    }
+  }, [])
+
+  if (!visible || formFocused || coveringForm) return null
 
   const baseStyle = isLight
     ? { ...getGlassMenuStyle(true), borderRadius: '18px' }
@@ -36,12 +78,11 @@ export default function ScrollToTop() {
   return (
     <button
       type="button"
+      data-scroll-top
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Scroll to top"
-      className="fixed z-50 flex items-center justify-center transition-all duration-300"
+      className="scroll-to-top fixed z-40 flex items-center justify-center transition-all duration-300"
       style={{
-        right: '20px',
-        bottom: '20px',
         width: '44px',
         height: '44px',
         cursor: 'pointer',

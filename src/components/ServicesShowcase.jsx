@@ -1,13 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { SERVICES_DATA } from '../data/siteData'
-import { scrollToSection, scrollToService } from '../utils/navScroll'
+import { getServiceScrollOffset, scrollToSection, scrollToService } from '../utils/navScroll'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+const DESKTOP_QUERY = '(min-width: 1280px)'
+const LAST_INDEX = SERVICES_DATA.length - 1
+
 function scrollToSlide(i) {
   scrollToService(i)
+}
+
+function clampIndex(index) {
+  return Math.max(0, Math.min(LAST_INDEX, index))
+}
+
+function useDesktopShowcase() {
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(DESKTOP_QUERY).matches)
+
+  useEffect(() => {
+    const query = window.matchMedia(DESKTOP_QUERY)
+    const onChange = () => setIsDesktop(query.matches)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
+
+  return isDesktop
 }
 
 const CLICKED_LINK = '#475569'
@@ -18,6 +38,39 @@ const GLASS_DIALOGUE_STYLE = {
   border: '1px solid rgba(255,255,255,0.98)',
   borderTop: '1px solid #ffffff',
   boxShadow: '0 8px 40px rgba(15,23,42,0.14), inset 0 1px 0 rgba(255,255,255,1), 0 0 0 1px rgba(15,23,42,0.05)',
+}
+
+function ServiceListItem({ service, index, registerRef }) {
+  const rootRef = useRef()
+
+  useEffect(() => {
+    registerRef(index, rootRef.current)
+  }, [index, registerRef])
+
+  return (
+    <article
+      ref={rootRef}
+      id={`service-slide-${index}`}
+      className="service-list-item"
+    >
+      <div className="service-list-media">
+        <img
+          src={service.imagePath}
+          alt={service.title}
+          className="service-list-image"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          onError={(e) => {
+            e.target.style.display = 'none'
+            e.target.parentElement.style.background = '#020509'
+          }}
+        />
+      </div>
+      <div className="service-list-copy">
+        <h3 className="service-list-title">{service.title}</h3>
+        <p className="service-list-description">{service.description}</p>
+      </div>
+    </article>
+  )
 }
 
 function ServiceItem({ service, index, registerRef, stackOrder, isActive }) {
@@ -53,7 +106,7 @@ function ServiceItem({ service, index, registerRef, stackOrder, isActive }) {
       }
     )
     return () => { tween.scrollTrigger && tween.scrollTrigger.kill(); tween.kill() }
-  }, [index])
+  }, [index, registerRef])
 
   return (
     <div
@@ -64,14 +117,15 @@ function ServiceItem({ service, index, registerRef, stackOrder, isActive }) {
       style={{ margin: 0, overflow: 'visible', position: 'relative' }}
     >
       <div
-        className="w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] relative overflow-hidden"
+        className="service-slide-media w-full relative overflow-hidden"
         style={{ boxSizing: 'border-box', background: 'var(--bg)' }}
       >
         <div ref={imageRef} className="absolute inset-0 flex items-center justify-center" style={{ background: 'var(--bg)' }}>
           <img
             src={service.imagePath}
             alt={service.title}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover object-center lg:object-contain"
+            loading={index === 0 ? 'eager' : 'lazy'}
             onError={(e) => {
               e.target.style.display = 'none'
               e.target.parentElement.style.background = '#020509'
@@ -107,13 +161,16 @@ function ServiceItem({ service, index, registerRef, stackOrder, isActive }) {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-5">
                 <button
+                  type="button"
                   className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors duration-200 sm:whitespace-nowrap"
                   style={{
                     color: clickedLink === 'back' ? CLICKED_LINK : '#64748b',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    padding: 0,
+                    minHeight: 44,
+                    minWidth: 44,
+                    padding: '10px 12px',
                   }}
                   onMouseEnter={(e) => setLinkColor(e.currentTarget, 'back')}
                   onMouseLeave={(e) => resetLinkColor(e.currentTarget, 'back')}
@@ -134,13 +191,16 @@ function ServiceItem({ service, index, registerRef, stackOrder, isActive }) {
 
                 {next && (
                   <button
+                    type="button"
                     className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors duration-200 sm:whitespace-nowrap"
                     style={{
                       color: clickedLink === 'next' ? CLICKED_LINK : '#29b6ff',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      padding: 0,
+                      minHeight: 44,
+                      minWidth: 44,
+                      padding: '10px 12px',
                     }}
                     onMouseEnter={(e) => setLinkColor(e.currentTarget, 'next', '#29b6ff')}
                     onMouseLeave={(e) => {
@@ -169,18 +229,43 @@ export default function ServicesShowcase() {
   const sectionRef = useRef()
   const slideEls = useRef([])
   const activeRef = useRef(0)
+  const isDesktop = useDesktopShowcase()
   const [activeIndex, setActiveIndex] = useState(0)
 
-  const registerRef = (i, el) => { slideEls.current[i] = el }
+  const registerRef = useCallback((i, el) => { slideEls.current[i] = el }, [])
+
+  const setActive = useCallback((index) => {
+    const next = clampIndex(index)
+    if (next === activeRef.current) return
+    activeRef.current = next
+    setActiveIndex(next)
+    window.dispatchEvent(new CustomEvent('serviceChange', { detail: { index: next } }))
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
-    if (!section) return
+    if (!section) return undefined
+
+    const goToIndex = (index) => {
+      const next = clampIndex(index)
+      activeRef.current = next
+      setActiveIndex(next)
+      window.dispatchEvent(new CustomEvent('serviceChange', { detail: { index: next } }))
+
+      const el = slideEls.current[next]
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - getServiceScrollOffset()
+        window.scrollTo({ top: y, behavior: 'smooth' })
+        return
+      }
+      scrollToSection('services-showcase')
+    }
 
     window.__showcaseInfo = {
       sectionEl: section,
       totalSlides: SERVICES_DATA.length,
       slideEls: slideEls.current,
+      goToIndex,
     }
 
     const handleScroll = () => {
@@ -193,41 +278,42 @@ export default function ServicesShowcase() {
         const dist = Math.abs(center - mid)
         if (dist < bestDist) { bestDist = dist; best = i }
       })
-      if (best !== activeRef.current) {
-        activeRef.current = best
-        setActiveIndex(best)
-        window.dispatchEvent(new CustomEvent('serviceChange', { detail: { index: best } }))
-      }
+      setActive(best)
     }
 
     const handleKey = (e) => {
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
-        e.target instanceof HTMLButtonElement
+        e.target instanceof HTMLSelectElement
       ) return
       const rect = section.getBoundingClientRect()
       const inView = rect.top < window.innerHeight * 0.7 && rect.bottom > window.innerHeight * 0.25
       if (!inView) return
       if (e.key === 'ArrowRight') {
         e.preventDefault()
-        scrollToSlide(Math.min(activeRef.current + 1, SERVICES_DATA.length - 1))
+        goToIndex(activeRef.current + 1)
       }
       if (e.key === 'ArrowLeft') {
         e.preventDefault()
-        scrollToSlide(Math.max(activeRef.current - 1, 0))
+        goToIndex(activeRef.current - 1)
       }
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     window.addEventListener('keydown', handleKey)
     handleScroll()
+
+    const hash = window.location.hash
+    const match = hash.match(/^#service-(?:slide-)?(\d+)$/)
+    if (match) goToIndex(Number(match[1]))
+
     return () => {
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('keydown', handleKey)
       delete window.__showcaseInfo
     }
-  }, [])
+  }, [setActive])
 
   return (
     <section
@@ -239,13 +325,13 @@ export default function ServicesShowcase() {
         gap: 0,
         margin: 0,
         paddingTop: '2.26vh',
-        paddingBottom: 'clamp(80px, 12vh, 140px)',
+        paddingBottom: 'clamp(48px, 8vh, 140px)',
         overflow: 'visible',
       }}
     >
       <div
         className="w-full max-w-7xl mx-auto px-4 relative z-10 text-center"
-        style={{ marginBottom: '8px' }}
+        style={{ marginBottom: isDesktop ? '8px' : '12px' }}
       >
         <p className="section-label section-heading__label uppercase mb-2">
           Solutions We Offer
@@ -255,18 +341,31 @@ export default function ServicesShowcase() {
         </h2>
       </div>
 
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, overflow: 'visible' }}>
-        {SERVICES_DATA.map((service, i) => (
-          <ServiceItem
-            key={service.title}
-            service={service}
-            index={i}
-            registerRef={registerRef}
-            stackOrder={SERVICES_DATA.length - i}
-            isActive={activeIndex === i}
-          />
-        ))}
-      </div>
+      {isDesktop ? (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, overflow: 'visible' }}>
+          {SERVICES_DATA.map((service, i) => (
+            <ServiceItem
+              key={service.title}
+              service={service}
+              index={i}
+              registerRef={registerRef}
+              stackOrder={SERVICES_DATA.length - i}
+              isActive={activeIndex === i}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="service-list">
+          {SERVICES_DATA.map((service, i) => (
+            <ServiceListItem
+              key={service.title}
+              service={service}
+              index={i}
+              registerRef={registerRef}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

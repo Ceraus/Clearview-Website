@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getSiteAssetUrls } from '../utils/assetPreload'
+import { getCriticalAssetUrls, getDeferredAssetUrls, preloadImages } from '../utils/assetPreload'
 
 export default function AssetPreloader({ children }) {
   const [ready, setReady] = useState(false)
@@ -8,7 +8,7 @@ export default function AssetPreloader({ children }) {
 
   useEffect(() => {
     let cancelled = false
-    const urls = getSiteAssetUrls()
+    const urls = getCriticalAssetUrls()
     let completed = 0
 
     const tasks = urls.map(
@@ -31,6 +31,7 @@ export default function AssetPreloader({ children }) {
       if (!cancelled) {
         setProgress(1)
         setReady(true)
+        preloadImages(getDeferredAssetUrls())
       }
     })
 

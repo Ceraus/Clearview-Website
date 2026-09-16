@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useTheme } from '../context/ThemeContext'
 
 // A dynamic section divider that straddles the seam between two sections. The
@@ -11,6 +11,18 @@ export default function PlexusDivider({
 }) {
   const canvasRef = useRef(null)
   const { isDark } = useTheme()
+  const [compact, setCompact] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)')
+    const apply = () => setCompact(query.matches)
+    apply()
+    query.addEventListener('change', apply)
+    return () => query.removeEventListener('change', apply)
+  }, [])
+
+  const dividerHeight = compact ? Math.min(height, 96) : height
+  const dividerOverlap = compact ? Math.min(overlap, 96) : overlap
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -102,15 +114,15 @@ export default function PlexusDivider({
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
     }
-  }, [isDark, darkColor, lightColor])
+  }, [isDark, darkColor, lightColor, dividerHeight])
 
   return (
     <div
       aria-hidden="true"
       style={{
         position: 'relative',
-        height: `${height}px`,
-        marginTop: `-${overlap}px`,
+        height: `${dividerHeight}px`,
+        marginTop: `-${dividerOverlap}px`,
         marginBottom: 0,
         zIndex: 5,
         pointerEvents: 'none',

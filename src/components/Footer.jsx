@@ -3,18 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { SERVICES_DATA } from '../data/siteData'
 import PlexusOverlay from './PlexusOverlay'
 import { useTheme } from '../context/ThemeContext'
-
-import { NAV_SCROLL_OFFSET } from '../constants/layout'
+import { scrollToService } from '../utils/navScroll'
 
 const ADDRESS = '287 Park Ave, New York, NY 10171'
 const MAP_EMBED = `https://maps.google.com/maps?q=${encodeURIComponent(ADDRESS)}&z=15&output=embed`
-
-function scrollToSection(id) {
-  const el = document.getElementById(id)
-  if (!el) return
-  const y = el.getBoundingClientRect().top + window.scrollY - NAV_SCROLL_OFFSET
-  window.scrollTo({ top: y, behavior: 'smooth' })
-}
 
 function PhoneIcon() {
   return (
@@ -89,8 +81,8 @@ function FacebookIcon() {
 }
 
 const contactIconStyle = {
-  width: '34px',
-  height: '34px',
+  width: '44px',
+  height: '44px',
   background: 'rgba(41,182,255,0.1)',
   border: '1px solid rgba(41,182,255,0.25)',
 }
@@ -110,18 +102,20 @@ function CopyLink({ href, copyValue, children }) {
   }
 
   return (
-    <div className="flex items-center gap-2 min-w-0">
+    <div className="footer-copy-row flex items-center gap-2 min-w-0">
       {children}
       <button
         type="button"
         onClick={copy}
-        className="text-[10px] font-semibold uppercase tracking-wide shrink-0"
+        className="text-xs font-semibold uppercase tracking-wide shrink-0"
         style={{
           color: copied ? '#6b974d' : '#29b6ff',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          padding: '2px 0',
+          minWidth: 44,
+          minHeight: 44,
+          padding: '8px 4px',
         }}
       >
         {copied ? 'Copied' : 'Copy'}
@@ -136,12 +130,11 @@ export default function Footer() {
   const { isDark } = useTheme()
 
   const goToService = (index) => {
-    const id = `service-slide-${index}`
     if (location.pathname !== '/') {
-      navigate({ pathname: '/', hash: id })
+      navigate({ pathname: '/', hash: `service-${index}` })
       return
     }
-    scrollToSection(id)
+    scrollToService(index)
   }
 
   return (
@@ -152,20 +145,28 @@ export default function Footer() {
     >
       <PlexusOverlay opacity={0.7} nodeCount={81} linkDist={115} scale={1.5} color={isDark ? undefined : '#176fb4'} />
 
-      <div className="relative max-w-7xl mx-auto px-8 pb-10 pt-16" style={{ zIndex: 1 }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-8 items-stretch lg:min-h-[420px]">
-          <div className="flex flex-col justify-center">
-            <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-4 font-light">
+      <div
+        className="relative max-w-7xl mx-auto px-4 sm:px-8 pb-10 pt-16"
+        style={{
+          zIndex: 1,
+          paddingLeft: 'max(1rem, env(safe-area-inset-left, 0px))',
+          paddingRight: 'max(1rem, env(safe-area-inset-right, 0px))',
+          paddingBottom: 'max(2.5rem, env(safe-area-inset-bottom, 0px))',
+        }}
+      >
+        <div className="footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-8 items-stretch lg:min-h-[420px]">
+          <div className="footer-col footer-services flex flex-col justify-center">
+            <p className="section-label section-heading__label uppercase mb-4 font-light">
               Services We Offer
             </p>
-            <ul className="flex flex-col gap-2.5">
+            <ul className="footer-services-list flex flex-col gap-2.5">
               {SERVICES_DATA.map((service, index) => (
                 <li key={service.title}>
                   <button
                     type="button"
                     onClick={() => goToService(index)}
-                    className="text-left text-xs leading-snug transition-colors duration-200 hover:text-[#29b6ff]"
-                    style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    className="footer-service-link text-sm leading-snug transition-colors duration-200 hover:text-[#29b6ff]"
+                    style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '10px 0', minHeight: 44 }}
                   >
                     {service.title}
                   </button>
@@ -191,9 +192,9 @@ export default function Footer() {
             />
           </div>
 
-          <div className="flex flex-col justify-center h-full gap-5 sm:col-span-2 lg:col-span-1">
-            <div style={{ marginBottom: '8px' }}>
-              <p className="section-label text-[10px] tracking-[0.4em] uppercase mb-2 font-light">
+          <div className="footer-col footer-contact flex flex-col justify-center h-full gap-5 sm:col-span-2 lg:col-span-1">
+            <div className="footer-contact-heading" style={{ marginBottom: '8px' }}>
+              <p className="section-label section-heading__label uppercase mb-2 font-light">
                 Where to Find Us
               </p>
               <h2 className="gradient-title text-3xl md:text-4xl font-bold">
@@ -201,12 +202,12 @@ export default function Footer() {
               </h2>
             </div>
 
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="footer-contact-item flex items-center gap-2.5 min-w-0">
               <div className="flex items-center justify-center shrink-0 rounded-full" style={contactIconStyle}>
                 <LocationIcon />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
+                <p className="text-xs font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
                   Visit Us
                 </p>
                 <p className="text-sm font-semibold" style={{ color: '#29b6ff' }}>
@@ -224,7 +225,7 @@ export default function Footer() {
                   <PhoneIcon />
                 </div>
                 <div className="leading-tight min-w-0">
-                  <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
+                  <p className="text-xs font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
                     We Can Help
                   </p>
                   <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
@@ -243,10 +244,10 @@ export default function Footer() {
                   <EmailIcon />
                 </div>
                 <div className="leading-tight min-w-0">
-                  <p className="text-[10px] font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
+                  <p className="text-xs font-medium tracking-wide uppercase" style={{ color: 'var(--text-label)' }}>
                     Email Us
                   </p>
-                  <p className="text-sm font-semibold whitespace-nowrap" style={{ color: '#29b6ff' }}>
+                  <p className="text-sm font-semibold break-words" style={{ color: '#29b6ff' }}>
                     info@clearviewglobal.com
                   </p>
                 </div>

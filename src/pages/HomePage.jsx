@@ -1,13 +1,11 @@
 import CompanyMission from '../components/CompanyMission'
 import ServicesShowcase from '../components/ServicesShowcase'
-import LeParcIntake from '../components/LeParcIntake'
 
 export default function HomePage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <CompanyMission />
       <ServicesShowcase />
-      <LeParcIntake />
     </main>
   )
 }

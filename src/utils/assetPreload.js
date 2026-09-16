@@ -19,6 +19,15 @@ const EARTH_TEXTURES = [
   '/assets/textures/earth_night_2048.png',
 ]
 
+export function getCriticalAssetUrls() {
+  return [
+    '/assets/clearviewlogo.svg',
+    '/assets/clearview-earth-logo.png',
+    '/assets/clearview-earth-logo-textonly.png',
+    '/assets/clearviewglobal-facade-blueprint.png',
+  ]
+}
+
 export function getSiteAssetUrls() {
   const urls = new Set([
     ...STATIC_ASSETS,
@@ -26,6 +35,11 @@ export function getSiteAssetUrls() {
     ...SERVICES_DATA.flatMap((s) => [s.imagePath, s.iconPath]),
   ])
   return [...urls].filter(Boolean)
+}
+
+export function getDeferredAssetUrls() {
+  const critical = new Set(getCriticalAssetUrls())
+  return getSiteAssetUrls().filter((url) => !critical.has(url))
 }
 
 export function preloadImages(urls, onProgress) {

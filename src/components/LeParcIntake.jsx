@@ -7,9 +7,13 @@ import { SERVICES_DATA } from '../data/siteData'
  * Recipients are server-side MAIL_TO / MAIL_CC / MAIL_BCC.
  * Mailto is only used if that API is unreachable.
  */
-export const LE_PARC_SECTION_ID = 'le-parc'
+export const LE_PARC_SECTION_ID = 'inquiry'
+export const LE_PARC_PATH = '/CL'
 export const LE_PARC_ADDRESS = '287 Park Avenue South, New York, NY 10010'
-const INTAKE_EMAIL = 'info@clearviewglobal.com'
+export const LE_PARC_EMAIL = 'info@clearviewglobal.com'
+export const LE_PARC_PHONE = '212-920-1234'
+export const LE_PARC_PHONE_HREF = 'tel:2129201234'
+const INTAKE_EMAIL = LE_PARC_EMAIL
 const INQUIRY_URL = '/api/le-parc-inquiry'
 
 const SEAT_OPTIONS = [
@@ -150,18 +154,18 @@ function Field({ id, label, error, hint, required, children }) {
 
   return (
     <div className="flex flex-col gap-1.5 min-w-0">
-      <label htmlFor={id} className="text-[11px] font-medium tracking-wide" style={{ color: 'var(--text-label)' }}>
+      <label htmlFor={id} className="text-xs font-medium tracking-wide" style={{ color: 'var(--text-label)' }}>
         {label}
         {required ? <span aria-hidden="true"> *</span> : null}
       </label>
       {hint ? (
-        <p id={hintId} className="text-[11px] leading-snug" style={{ color: 'var(--text-dim)' }}>
+        <p id={hintId} className="text-xs leading-snug" style={{ color: 'var(--text-dim)' }}>
           {hint}
         </p>
       ) : null}
       {typeof children === 'function' ? children({ describedBy, errorId }) : children}
       {error ? (
-        <p id={errorId} role="alert" className="text-[11px] leading-snug" style={{ color: '#b42318' }}>
+        <p id={errorId} role="alert" className="text-xs leading-snug" style={{ color: '#b42318' }}>
           {error}
         </p>
       ) : null}
@@ -256,76 +260,16 @@ export default function LeParcIntake() {
   const submitting = status === 'submitting'
 
   return (
-    <section
-      id={LE_PARC_SECTION_ID}
-      className="le-parc-intake relative px-4"
-      style={{
-        background: 'var(--bg)',
-        paddingTop: 'clamp(48px, 8vh, 88px)',
-        paddingBottom: '220px',
-      }}
-      aria-labelledby={`${formId}-heading`}
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-0 items-start">
-          <div className="md:col-span-6">
-            <p className="section-label section-heading__label uppercase mb-2">
-              Le Parc · 287 Park Avenue South
-            </p>
-            <h2 id={`${formId}-heading`} className="gradient-title section-heading__title mb-5">
-              For tenants at Le Parc
-            </h2>
-            <p className="text-sm md:text-base leading-relaxed mb-4" style={{ color: 'var(--text-body)' }}>
-              Clearview Global is a Manhattan MSP, founded in 2009. We work from the historic United Charities Building at{' '}
-              <strong style={{ color: 'var(--text-strong)', fontWeight: 600 }}>{LE_PARC_ADDRESS}</strong>
-              — the same landmark that houses Le Parc, a coworking and private-office operator with furnished suites, dedicated desks, and virtual offices.
-            </p>
-            <p className="text-sm md:text-base leading-relaxed mb-8" style={{ color: 'var(--text-body)' }}>
-              If you occupy a suite, desk, or other workspace here, this form is for on-site questions about our services — not a second Contact Us. Walk-up and neighboring occupants in this building can use it too.
-            </p>
-
-            <dl className="flex flex-col gap-4 max-w-md">
-              <div>
-                <dt className="text-[10px] font-medium tracking-wide uppercase mb-1" style={{ color: 'var(--text-label)' }}>
-                  In this building
-                </dt>
-                <dd className="text-sm font-semibold" style={{ color: '#176fb4' }}>{LE_PARC_ADDRESS}</dd>
-              </div>
-              <div>
-                <dt className="text-[10px] font-medium tracking-wide uppercase mb-1" style={{ color: 'var(--text-label)' }}>
-                  Call
-                </dt>
-                <dd>
-                  <a href="tel:2129201234" className="text-sm font-semibold hover:text-[#29b6ff]" style={{ color: '#176fb4' }}>
-                    212-920-1234
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] font-medium tracking-wide uppercase mb-1" style={{ color: 'var(--text-label)' }}>
-                  Email
-                </dt>
-                <dd>
-                  <a href={`mailto:${INTAKE_EMAIL}`} className="text-sm font-semibold hover:text-[#29b6ff]" style={{ color: '#176fb4' }}>
-                    {INTAKE_EMAIL}
-                  </a>
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <div className="hidden md:block md:col-span-1" aria-hidden="true" />
-
-          <div className="md:col-span-5">
-            <div className="rounded-2xl p-6 md:p-8" style={glassCard}>
+    <div id={LE_PARC_SECTION_ID} className="le-parc-intake">
+      <div className="le-parc-form-card rounded-2xl p-5 sm:p-6 md:p-8" style={glassCard}>
               {status === 'success' || status === 'mailto' ? (
                 <div role="status" aria-live="polite">
-                  <p className="text-[10px] font-medium tracking-[0.25em] uppercase mb-2" style={{ color: 'var(--text-subtle)' }}>
+                  <p className="text-xs font-medium tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--text-subtle)' }}>
                     {status === 'success' ? 'Inquiry sent' : 'Inquiry drafted'}
                   </p>
-                  <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text-title)' }}>
+                  <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--text-title)' }}>
                     {status === 'success' ? 'Clearview has your details' : 'Your email app should open next'}
-                  </h3>
+                  </h2>
                   <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--text-body)' }}>
                     {status === 'success'
                       ? `This went to ${INTAKE_EMAIL}. We’ll reply at the email you entered.`
@@ -334,7 +278,7 @@ export default function LeParcIntake() {
                   {status === 'mailto' ? (
                     <a
                       href={mailtoHref}
-                      className="inline-flex items-center justify-center w-full px-6 py-2.5 rounded-lg text-sm font-semibold text-[#03060e] transition-all duration-300 hover:brightness-110"
+                      className="le-parc-submit inline-flex items-center justify-center w-full px-6 rounded-lg text-sm font-semibold text-[#03060e] transition-all duration-300 hover:brightness-110"
                       style={{ background: 'linear-gradient(135deg, #29b6ff 0%, #0d9ee0 100%)', boxShadow: '0 2px 14px rgba(41,182,255,0.3)' }}
                     >
                       Open email to Clearview
@@ -343,7 +287,7 @@ export default function LeParcIntake() {
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="inline-flex items-center justify-center w-full px-6 py-2.5 rounded-lg text-sm font-semibold text-[#03060e] transition-all duration-300 hover:brightness-110"
+                      className="le-parc-submit inline-flex items-center justify-center w-full px-6 rounded-lg text-sm font-semibold text-[#03060e] transition-all duration-300 hover:brightness-110"
                       style={{
                         background: 'linear-gradient(135deg, #29b6ff 0%, #0d9ee0 100%)',
                         boxShadow: '0 2px 14px rgba(41,182,255,0.3)',
@@ -358,7 +302,7 @@ export default function LeParcIntake() {
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="mt-3 w-full text-sm font-medium py-2"
+                      className="le-parc-submit mt-3 w-full text-sm font-medium"
                       style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
                     >
                       Send another inquiry
@@ -366,13 +310,19 @@ export default function LeParcIntake() {
                   ) : null}
                 </div>
               ) : (
-                <form ref={formRef} onSubmit={handleSubmit} noValidate className="relative">
-                  <p className="text-[10px] font-medium tracking-[0.25em] uppercase mb-2" style={{ color: 'var(--text-subtle)' }}>
+                <form
+                  ref={formRef}
+                  onSubmit={handleSubmit}
+                  noValidate
+                  className="relative"
+                  aria-labelledby={`${formId}-heading`}
+                >
+                  <p className="text-xs font-medium tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--text-subtle)' }}>
                     Tenant intake
                   </p>
-                  <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--text-title)' }}>
+                  <h2 id={`${formId}-heading`} className="text-xl font-bold mb-1" style={{ color: 'var(--text-title)' }}>
                     Tell us how to reach you
-                  </h3>
+                  </h2>
                   <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
                     {`Required fields are marked. Submitting sends this to ${INTAKE_EMAIL}.`}
                   </p>
@@ -511,7 +461,7 @@ export default function LeParcIntake() {
                   </div>
 
                   <fieldset className="mt-5">
-                    <legend className="text-[11px] font-medium tracking-wide mb-2" style={{ color: 'var(--text-label)' }}>
+                    <legend className="text-xs font-medium tracking-wide mb-2" style={{ color: 'var(--text-label)' }}>
                       Urgency
                     </legend>
                     <div className="le-parc-urgency">
@@ -571,7 +521,7 @@ export default function LeParcIntake() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="mt-6 w-full px-6 py-2.5 rounded-lg text-sm font-semibold text-[#03060e] transition-all duration-300 hover:brightness-110 disabled:opacity-70"
+                    className="le-parc-submit mt-6 w-full px-6 rounded-lg text-sm font-semibold text-[#03060e] transition-all duration-300 hover:brightness-110 disabled:opacity-70"
                     style={{
                       background: 'linear-gradient(135deg, #29b6ff 0%, #0d9ee0 100%)',
                       boxShadow: '0 2px 14px rgba(41,182,255,0.3)',
@@ -583,10 +533,7 @@ export default function LeParcIntake() {
                   </button>
                 </form>
               )}
-            </div>
-          </div>
-        </div>
       </div>
-    </section>
+    </div>
   )
 }
