@@ -1,7 +1,7 @@
 {
   "name": "clearview-global-revision",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -12,6 +12,7 @@
     "start": "node server/index.js",
     "start:api": "node server/index.js",
     "build": "vite build",
+    "optimize-images": "node scripts/optimize-images.mjs",
     "fetch-earth-textures": "node scripts/fetch-earth-textures.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -40,6 +41,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "sharp": "^0.35.4",
     "vite": "^8.0.12"
   }
 }

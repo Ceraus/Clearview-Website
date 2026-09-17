@@ -334,6 +334,13 @@
   align-items: stretch;
 }
 
+.company-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
 .company-identity-mark {
   gap: 0;
 }
@@ -385,32 +392,26 @@
   .company-fold {
     display: grid;
     grid-template-columns: 42% minmax(0, 1fr);
-    grid-template-rows: auto auto;
     column-gap: 2rem;
-    row-gap: 1.25rem;
-    align-items: start;
+    row-gap: 0;
+    align-items: center;
   }
 
   .company-blueprint {
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     width: 100%;
     height: auto;
   }
 
-  .company-identity {
+  .company-copy {
     grid-column: 2;
     grid-row: 1;
   }
 
-  .company-body {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
   .company-heading {
     font-size: 1.875rem;
-    margin: 0.5rem 0 0.5rem;
+    margin: 0.5rem 0 0;
   }
 }
 
@@ -784,14 +785,38 @@ body[data-nav-open] .scroll-to-top {
     text-align: center;
   }
 
-  #site-footer .footer-services-list {
-    align-items: center;
+  #site-footer .footer-services {
     width: 100%;
   }
 
+  #site-footer .footer-services-heading {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-inline: 0;
+    padding-inline: 0.22em 0;
+  }
+
+  #site-footer .footer-services-list {
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  #site-footer .footer-services-list li {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+  }
+
   #site-footer .footer-service-link {
+    display: block;
     text-align: center;
     width: 100%;
+    margin: 0;
   }
 
   #site-footer .footer-contact-heading {

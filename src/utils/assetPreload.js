@@ -1,7 +1,7 @@
 import { SERVICES_DATA } from '../data/siteData'
 
 const STATIC_ASSETS = [
-  '/assets/clearviewglobal-facade-blueprint.png',
+  '/assets/clearviewglobal-facade-blueprint.webp',
   '/assets/clearview-login-logo.png',
   '/assets/clearviewlogo.svg',
   '/assets/clearview-header-logo.png',
@@ -24,7 +24,7 @@ export function getCriticalAssetUrls() {
     '/assets/clearviewlogo.svg',
     '/assets/clearview-earth-logo.png',
     '/assets/clearview-earth-logo-textonly.png',
-    '/assets/clearviewglobal-facade-blueprint.png',
+    '/assets/clearviewglobal-facade-blueprint.webp',
   ]
 }
 

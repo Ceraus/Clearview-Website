@@ -155,8 +155,8 @@ export default function Footer() {
         }}
       >
         <div className="footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-8 items-stretch lg:min-h-[420px]">
-          <div className="footer-col footer-services flex flex-col justify-center">
-            <p className="section-label section-heading__label uppercase mb-4 font-light">
+          <div className="footer-col footer-services flex flex-col justify-center sm:col-span-2 lg:col-span-1">
+            <p className="footer-services-heading section-label section-heading__label uppercase mb-4 font-light">
               Services We Offer
             </p>
             <ul className="footer-services-list flex flex-col gap-2.5">

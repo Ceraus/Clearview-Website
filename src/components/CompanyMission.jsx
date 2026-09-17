@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import SpinningLogoCanvas from './SpinningLogoCanvas'
 
-const OFFICE_IMAGE = '/assets/clearviewglobal-facade-blueprint.png'
+const OFFICE_IMAGE = '/assets/clearviewglobal-facade-blueprint.webp'
 const WORDMARK = '/assets/clearview-earth-logo-textonly.png'
 
 export default function CompanyMission() {
@@ -34,43 +34,45 @@ export default function CompanyMission() {
             />
           </div>
 
-          <div className="company-identity flex flex-col items-center w-full text-center">
-            <div className="company-identity-mark flex items-center justify-center">
-              <SpinningLogoCanvas
-                maxWidth="var(--company-logo-size)"
-                height="var(--company-logo-size)"
-                marginBottom="0"
-              />
-              <img
-                src={WORDMARK}
-                alt=""
-                className="company-wordmark object-contain self-center"
-              />
+          <div className="company-copy">
+            <div className="company-identity flex flex-col items-center w-full text-center">
+              <div className="company-identity-mark flex items-center justify-center">
+                <SpinningLogoCanvas
+                  maxWidth="var(--company-logo-size)"
+                  height="var(--company-logo-size)"
+                  marginBottom="0"
+                />
+                <img
+                  src={WORDMARK}
+                  alt=""
+                  className="company-wordmark object-contain self-center"
+                />
+              </div>
+              <p
+                className="section-label section-heading__label uppercase font-light"
+                style={{ margin: '8px 0 0' }}
+              >
+                Who We Are
+              </p>
+              <h1 className="gradient-title company-heading font-bold leading-snug">
+                Our Company, Mission & Perspective
+              </h1>
             </div>
-            <p
-              className="section-label section-heading__label uppercase font-light"
-              style={{ margin: '8px 0 0' }}
-            >
-              Who We Are
-            </p>
-            <h1 className="gradient-title company-heading font-bold leading-snug">
-              Our Company, Mission & Perspective
-            </h1>
-          </div>
 
-          <div
-            className="company-body rounded-2xl p-5 sm:p-8 lg:p-10 w-full"
-            style={{
-              background: 'var(--bg-glass)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid var(--border-md)',
-              boxShadow: '0 12px 64px var(--shadow), 0 4px 24px var(--shadow)',
-            }}
-          >
-            <p className="text-sm md:text-base leading-relaxed" style={{ color: 'var(--text-body)' }}>
-              Born in Manhattan (2009), Clearview Global was built on a single core belief: technology isn&apos;t an operational expense—it&apos;s your greatest strategic asset. Functioning as your extended team, our collective of system architects, cybersecurity experts, and tech strategists operates as a seamless extension of your organization. We prioritize architectural foresight over firefights, anticipating shifts, engineering secure infrastructure, and stopping issues before they disrupt your operations. The result is zero friction and total clarity; by proactively securing and managing enterprise-grade IT, we eliminate downtime and cyber threats, turning your tech stack into a definitive competitive advantage.
-            </p>
+            <div
+              className="company-body rounded-2xl p-5 sm:p-8 lg:p-10 w-full"
+              style={{
+                background: 'var(--bg-glass)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                border: '1px solid var(--border-md)',
+                boxShadow: '0 12px 64px var(--shadow), 0 4px 24px var(--shadow)',
+              }}
+            >
+              <p className="text-sm md:text-base leading-relaxed" style={{ color: 'var(--text-body)' }}>
+                Born in Manhattan (2009), Clearview Global was built on a single core belief: technology isn&apos;t an operational expense—it&apos;s your greatest strategic asset. Functioning as your extended team, our collective of system architects, cybersecurity experts, and tech strategists operates as a seamless extension of your organization. We prioritize architectural foresight over firefights, anticipating shifts, engineering secure infrastructure, and stopping issues before they disrupt your operations. The result is zero friction and total clarity; by proactively securing and managing enterprise-grade IT, we eliminate downtime and cyber threats, turning your tech stack into a definitive competitive advantage.
+              </p>
+            </div>
           </div>
         </div>
       </div>
