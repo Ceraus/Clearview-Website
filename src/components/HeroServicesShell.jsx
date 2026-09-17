@@ -1,4 +1,3 @@
-import HeroEarthCanvas from './HeroEarthCanvas'
 import HeroSection from './HeroSection'
 
 export default function HeroServicesShell() {
@@ -18,9 +17,6 @@ export default function HeroServicesShell() {
                 'radial-gradient(circle at 38% 38%, #1b4f86 0%, #0a2950 38%, #051022 68%, #020509 100%)',
             }}
           />
-          <div className="absolute inset-0 pointer-events-auto" style={{ zIndex: 0 }}>
-            <HeroEarthCanvas />
-          </div>
           <div
             className="absolute inset-0 pointer-events-none"
             style={{

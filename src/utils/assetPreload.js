@@ -10,15 +10,6 @@ const STATIC_ASSETS = [
   '/assets/Contact Us.svg',
 ]
 
-const EARTH_TEXTURES = [
-  '/assets/textures/earth_day_2048.jpg',
-  '/assets/textures/earth_clouds_2048.png',
-  '/assets/textures/earth_clouds_1024.png',
-  '/assets/textures/earth_normal_2048.jpg',
-  '/assets/textures/earth_specular_2048.jpg',
-  '/assets/textures/earth_night_2048.png',
-]
-
 export function getCriticalAssetUrls() {
   return [
     '/assets/clearviewlogo.svg',
@@ -31,7 +22,6 @@ export function getCriticalAssetUrls() {
 export function getSiteAssetUrls() {
   const urls = new Set([
     ...STATIC_ASSETS,
-    ...EARTH_TEXTURES,
     ...SERVICES_DATA.flatMap((s) => [s.imagePath, s.iconPath]),
   ])
   return [...urls].filter(Boolean)

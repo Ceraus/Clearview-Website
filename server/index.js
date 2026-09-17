@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import compression from 'compression'
 import dotenv from 'dotenv'
 import express from 'express'
 import nodemailer from 'nodemailer'
@@ -24,6 +25,34 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const RATE_WINDOW_MS = 10 * 60 * 1000
 const RATE_MAX = 8
 const rateHits = new Map()
+const COMPRESSIBLE_TYPES = new Set([
+  'application/javascript',
+  'application/json',
+  'image/svg+xml',
+  'image/webp',
+  'text/css',
+  'text/html',
+  'text/javascript',
+])
+const HASHED_ASSET_RE = /[/\\]assets[/\\][^/\\]+-[A-Za-z0-9_-]{8,}\.(?:js|css|mjs)$/i
+
+function shouldCompress(req, res) {
+  if (req.headers['x-no-compression']) return false
+  const raw = res.getHeader('Content-Type')
+  if (!raw) return false
+  const type = String(Array.isArray(raw) ? raw[0] : raw).split(';')[0].trim().toLowerCase()
+  return COMPRESSIBLE_TYPES.has(type)
+}
+
+function setStaticHeaders(res, filePath) {
+  if (HASHED_ASSET_RE.test(filePath)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    return
+  }
+  if (filePath.toLowerCase().endsWith('.html')) {
+    res.setHeader('Cache-Control', 'no-cache')
+  }
+}
 
 function splitEmails(value) {
   if (!value || typeof value !== 'string') return []
@@ -147,6 +176,7 @@ function buildMail(values) {
 const app = express()
 app.set('trust proxy', 1)
 app.disable('x-powered-by')
+app.use(compression({ filter: shouldCompress, threshold: 1024 }))
 app.use(express.json({ limit: '32kb' }))
 
 app.get('/api/health', (_req, res) => {
@@ -218,6 +248,7 @@ if (isProd) {
     express.static(distDir, {
       index: false,
       redirect: false,
+      setHeaders: setStaticHeaders,
     }),
   )
   app.use((req, res, next) => {
@@ -229,6 +260,7 @@ if (isProd) {
       res.status(405).end()
       return
     }
+    res.setHeader('Cache-Control', 'no-cache')
     res.sendFile(path.join(distDir, 'index.html'), (err) => {
       if (err) next(err)
     })
